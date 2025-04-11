@@ -5,5 +5,10 @@ pub struct Product {
     pub id: String,
     pub name: String,
     pub version: String,
-    // Other product fields
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub purl: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpe: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supplier: Option<String>,
 }
