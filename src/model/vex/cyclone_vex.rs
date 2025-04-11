@@ -1,3 +1,5 @@
+use std::{fs, io};
+use std::path::Path;
 use serde_derive::{Deserialize, Serialize};
 use super::document_metadata::DocumentMetadata;
 use super::vulnerability_statement::VulnerabilityStatement;
@@ -15,10 +17,10 @@ impl CycloneVex {
         serde_json::from_str(json_str)
     }
 
-    pub fn from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let file_content = std::fs::read_to_string(path)?;
-        let vex = Self::from_json(&file_content)?;
-        Ok(vex)
+    /// Parse CycloneVex from a file
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, io::Error> {
+        let content = fs::read_to_string(path)?;
+        Self::from_json(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
     }
 
     /// Convert to JSON string
