@@ -6,5 +6,8 @@ pub struct DocumentMetadata {
     pub version: String,
     pub author: String,
     pub timestamp: String,
-    // Other metadata fields as needed
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tracking: Option<String>,
 }
