@@ -2,7 +2,7 @@ use serde_derive::{Deserialize, Serialize};
 use super::document_metadata::DocumentMetadata;
 use super::vulnerability_statement::VulnerabilityStatement;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CycloneVex {
     // Document metadata
     pub document: DocumentMetadata,
