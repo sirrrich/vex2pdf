@@ -5,6 +5,7 @@ mod model{
         pub mod vulnerability_statement;
         pub mod product;
         pub mod document_metadata;
+        pub mod tracking_info;
     }
 }
 
@@ -16,6 +17,8 @@ mod model_tests {
     };
 
     fn create_sample_vex() -> CycloneVex {
+        use crate::model::vex::document_metadata::TrackingInfo;
+
         CycloneVex {
             document: DocumentMetadata {
                 id: "example-vex-123".to_string(),
@@ -23,7 +26,12 @@ mod model_tests {
                 author: "Test Author".to_string(),
                 timestamp: "2023-07-15T10:30:00Z".to_string(),
                 title: Some("Vulnerability Disclosure Report".to_string()),
-                tracking: Some("TRACK-2023-001".to_string()),
+                tracking: Some(TrackingInfo {
+                    id: "TRACK-2023-001".to_string(),
+                    status: Some("final".to_string()),
+                    version: Some(1),
+                    timestamp: Some("2023-07-15T10:30:00Z".to_string()),
+                }),
             },
             vulnerability_statements: vec![
                 VulnerabilityStatement {
