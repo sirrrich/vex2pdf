@@ -1,4 +1,9 @@
+# build and ide artefacts
 /target
 /.idea
 /.vscode
 
+
+# other artefacts
+/*_vex.json
+/*_example.json

@@ -1,11 +1,35 @@
 pub mod model {
-    pub mod vex {
-        pub mod cyclone_vex;
-        pub mod document_metadata;
-        pub mod product;
-        pub mod tracking_info;
-        pub mod vex_status;
-        pub mod vulnerability_statement;
+    pub mod cyclonedx {
+        
+        pub mod root {
+            use serde_derive::{Deserialize, Serialize};
+            use super::non_root;
+            pub mod cyclone_vex;
+        };
+        
+        pub mod non_root {
+            use serde_derive::{Deserialize, Serialize};
+            
+            pub mod document_metadata;
+            pub mod product;
+            pub mod tracking_info;
+            pub mod vex_status;
+            pub mod vulnerability_statement;
+            pub mod advisory;
+            pub mod affects;
+            pub mod credits;
+            pub mod individual;
+            pub mod organization;
+            pub mod property;
+            pub mod source;
+            pub mod vulnerability;
+            pub mod vulnerability_analysis;
+            pub mod vulnerability_rating;
+            pub mod vulnerability_reference;
+            
+        }
+
+
     }
 }
 

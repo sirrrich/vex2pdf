@@ -1,5 +1,5 @@
-pub(crate) use crate::model::vex::tracking_info::TrackingInfo;
-use serde_derive::{Deserialize, Serialize};
+use super::*;
+use tracking_info::TrackingInfo;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DocumentMetadata {
