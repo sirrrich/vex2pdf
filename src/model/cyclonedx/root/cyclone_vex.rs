@@ -1,5 +1,8 @@
 use super::*;
 use non_root::vulnerability::Vulnerability;
+use non_root::metadata::Metadata;
+use non_root::component::component::Component;
+use non_root::external_reference::ExternalReference;
 
 use std::path::Path;
 use std::{fs, io};
@@ -40,38 +43,26 @@ pub struct CycloneDxVex {
 }
 
 // Stub models for other components - would need to be fully implemented
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Metadata {
-    // Fields omitted for brevity
-}
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Component {
-    // Fields omitted for brevity
-}
+
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Service {
     // Fields omitted for brevity
+    //TODO
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExternalReference {
-    pub url: String,
-    #[serde(rename = "type")]
-    pub reference_type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub comment: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Dependency {
     // Fields omitted for brevity
+    //TODO
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Composition {
     // Fields omitted for brevity
+    //TODO
 }
 
 

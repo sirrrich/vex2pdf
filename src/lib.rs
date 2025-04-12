@@ -5,7 +5,7 @@ pub mod model {
             use serde_derive::{Deserialize, Serialize};
             use super::non_root;
             pub mod cyclone_vex;
-        };
+        }
         
         pub mod non_root {
             use serde_derive::{Deserialize, Serialize};
@@ -26,6 +26,35 @@ pub mod model {
             pub mod vulnerability_analysis;
             pub mod vulnerability_rating;
             pub mod vulnerability_reference;
+            pub mod metadata;
+            pub mod hash;
+            pub mod license;
+            pub mod person;
+            pub mod tool;
+            pub mod external_reference;
+            pub mod component {
+                use serde_derive::{Deserialize, Serialize};
+                use super::license;
+                use super::hash;
+                use super::external_reference;
+                use super::property;
+                pub mod component;
+                pub mod organizational_entity;
+                pub mod contact;
+                pub mod swid;
+                pub mod attached_text;
+                pub mod pedigree;
+                pub mod commit;
+                pub mod identifiable_action;
+                pub mod patch;
+                pub mod issue;
+                pub mod source;
+                pub mod evidence;
+                pub mod license_evidence;
+                pub mod copyright_evidence;
+                
+                
+            }
             
         }
 
