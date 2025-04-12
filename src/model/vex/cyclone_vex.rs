@@ -1,8 +1,8 @@
-use std::{fs, io};
-use std::path::Path;
-use serde_derive::{Deserialize, Serialize};
 use super::document_metadata::DocumentMetadata;
 use super::vulnerability_statement::VulnerabilityStatement;
+use serde_derive::{Deserialize, Serialize};
+use std::path::Path;
+use std::{fs, io};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CycloneVex {
@@ -27,5 +27,4 @@ impl CycloneVex {
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string_pretty(self)
     }
-
 }

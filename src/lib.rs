@@ -1,19 +1,24 @@
-mod model{
+pub mod model {
     pub mod vex {
         pub mod cyclone_vex;
+        pub mod document_metadata;
+        pub mod product;
+        pub mod tracking_info;
         pub mod vex_status;
         pub mod vulnerability_statement;
-        pub mod product;
-        pub mod document_metadata;
-        pub mod tracking_info;
     }
 }
 
+pub mod pdf {
+    pub mod generator;
+    pub mod styling;
+}
 
 #[cfg(test)]
 mod model_tests {
     use crate::model::vex::{
-        cyclone_vex::CycloneVex, document_metadata::DocumentMetadata, product::Product, vex_status::VexStatus, vulnerability_statement::VulnerabilityStatement,
+        cyclone_vex::CycloneVex, document_metadata::DocumentMetadata, product::Product,
+        vex_status::VexStatus, vulnerability_statement::VulnerabilityStatement,
     };
 
     fn create_sample_vex() -> CycloneVex {
@@ -132,7 +137,8 @@ mod model_tests {
 
         for status in statuses {
             let json = serde_json::to_string(&status).expect("Failed to serialize VexStatus");
-            let deserialized: VexStatus = serde_json::from_str(&json).expect("Failed to deserialize VexStatus");
+            let deserialized: VexStatus =
+                serde_json::from_str(&json).expect("Failed to deserialize VexStatus");
             assert_eq!(status, deserialized);
         }
     }
@@ -151,7 +157,8 @@ mod model_tests {
         // Write the VEX to the file
         let json = vex.to_json().expect("Failed to serialize to JSON");
         let mut file = fs::File::create(&temp_file).expect("Failed to create temp file");
-        file.write_all(json.as_bytes()).expect("Failed to write to temp file");
+        file.write_all(json.as_bytes())
+            .expect("Failed to write to temp file");
 
         // Read it back
         let loaded_vex = CycloneVex::from_file(&temp_file).expect("Failed to load from file");
@@ -175,5 +182,3 @@ mod model_tests {
         println!("Sample VEX file created at sample_vex.json");
     }
 }
-
-
