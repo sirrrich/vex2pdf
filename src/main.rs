@@ -4,7 +4,7 @@ use std::io::BufReader;
 use std::path::Path;
 use vex_to_pdf;
 
-use vex_to_pdf::model::vex::cyclone_vex::CycloneVex;
+use vex_to_pdf::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 use vex_to_pdf::pdf::generator::PdfGenerator;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -14,12 +14,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Parse the JSON file
     let file = File::open(json_path)?;
     let reader = BufReader::new(file);
-    let vex: CycloneVex = serde_json::from_reader(reader)?;
-
+    let vex: CycloneDxVex = serde_json::from_reader(reader)?;
+    
     println!(
-        "Loaded VEX data: {} by {}",
-        vex.document.title.as_deref().unwrap_or("Untitled"),
-        vex.document.author
+        "Loaded VEX data"
     );
 
     // Create PDF generator

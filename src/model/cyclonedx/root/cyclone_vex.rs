@@ -3,6 +3,9 @@ use non_root::vulnerability::Vulnerability;
 use non_root::metadata::Metadata;
 use non_root::component::component::Component;
 use non_root::external_reference::ExternalReference;
+use non_root::service::Service;
+use non_root::composition::Composition;
+use non_root::dependency::Dependency;
 
 use std::path::Path;
 use std::{fs, io};
@@ -11,13 +14,15 @@ use std::{fs, io};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CycloneDxVex {
     // Required fields
-    pub bomFormat: String,  // Must be "CycloneDX"
-    pub specVersion: String, // Like "1.4" or "1.5"
+    #[serde(rename="bomFormat")]
+    pub bom_format: String,  // Must be "CycloneDX"
+    #[serde(rename="specVersion")]
+    pub spec_version: String, // Like "1.4" or "1.5"
     pub version: i32,       // Document version, default 1
 
     // Optional fields
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub serialNumber: Option<String>,  // RFC-4122 UUID
+    #[serde(rename="serialNumber",skip_serializing_if = "Option::is_none")]
+    pub serial_number: Option<String>,  // RFC-4122 UUID
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Metadata>,
@@ -28,8 +33,8 @@ pub struct CycloneDxVex {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub services: Option<Vec<Service>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub externalReferences: Option<Vec<ExternalReference>>,
+    #[serde(rename="externalReferences", skip_serializing_if = "Option::is_none")]
+    pub external_references: Option<Vec<ExternalReference>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dependencies: Option<Vec<Dependency>>,
@@ -41,31 +46,6 @@ pub struct CycloneDxVex {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vulnerabilities: Option<Vec<Vulnerability>>,
 }
-
-// Stub models for other components - would need to be fully implemented
-
-
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Service {
-    // Fields omitted for brevity
-    //TODO
-}
-
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Dependency {
-    // Fields omitted for brevity
-    //TODO
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Composition {
-    // Fields omitted for brevity
-    //TODO
-}
-
-
 
 
 
@@ -88,7 +68,7 @@ impl CycloneDxVex {
     /// Validate against the CycloneDX schema
     pub fn validate(&self) -> Result<(), String> {
         // This is a placeholder implementation
-        if self.bomFormat != "CycloneDX" {
+        if self.bom_format != "CycloneDX" {
             return Err("bomFormat must be 'CycloneDX'".to_string());
         }
 

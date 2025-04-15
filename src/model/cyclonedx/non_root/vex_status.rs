@@ -4,7 +4,9 @@ use serde_derive::{Deserialize, Serialize};
 #[serde(rename_all = "snake_case")]
 pub enum VexStatus {
     Affected,
-    Fixed,
-    UnderInvestigation,
-    NotAffected,
+    Unaffected,
+    Unknown,
+    NotAffected, // CycloneDX 1.4
+    Fixed, // CycloneDX 1.4
+    UnderInvestigation, // CycloneDX 1.4
 }

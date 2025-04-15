@@ -1,13 +1,14 @@
-use crate::model::cyclonedx::non_root::vex_status::VexStatus;
 use super::*;
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct VulnerabilityAnalysis {
-    pub state: VexStatus, 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub justification: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub response: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub detail: Option<String>,
-}
+use component::contact::Contact;
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OrganizationalEntity {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contact: Option<Vec<Contact>>,
+}

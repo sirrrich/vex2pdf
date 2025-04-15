@@ -1,5 +1,5 @@
 use super::*;
-use organizational_entity::OrganizationalEntity;
+use non_root::organizational_entity::OrganizationalEntity;
 use hash::Hash;
 use license::Licenses;
 use swid::Swid;
@@ -7,6 +7,8 @@ use pedigree::Pedigree;
 use external_reference::ExternalReference;
 use property::Property;
 use evidence::Evidence;
+use crate::model::cyclonedx::non_root;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Component {
     #[serde(rename = "type")]
