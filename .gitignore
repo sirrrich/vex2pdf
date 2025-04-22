@@ -3,8 +3,13 @@
 /.idea
 /.vscode
 
+#local fonts directory
+/fonts
 
 # other artefacts
 /*_vex.json
 /*_example.json
+/*.pdf
+/*VEX.json
+/*VDR.json
 /*.pdf
