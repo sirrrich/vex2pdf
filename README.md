@@ -1,4 +1,4 @@
-# VEX-to-PDF
+# CycloneDX (VEX) to PDF Converter
 
 A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXchange) documents in JSON format to PDF reports.
 
