@@ -1,9 +1,31 @@
+//! # vex2pdf
+//!
+//! A command-line tool that converts CycloneDX VEX JSON documents to PDF reports.
+//!
+//! ## Usage
+//!
+//! Run the tool in a directory containing VEX JSON files:
+//!
+//! ```
+//! vex2pdf
+//! ```
+//!
+//! The tool will scan for JSON files, process any valid VEX documents, and generate 
+//! corresponding PDF reports with the same filename but with a .pdf extension.
+//!
+//! ## Font Requirements
+//!
+//! This tool requires Liberation Sans fonts to render PDFs correctly.
+//! See the README for details on setting up fonts.
+
+
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 use vex2pdf::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 use vex2pdf::pdf::generator::PdfGenerator;
+
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Get the current directory

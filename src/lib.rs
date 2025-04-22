@@ -1,3 +1,18 @@
+//! # vex2pdf library
+//!
+//! Core functionality for converting CycloneDX VEX documents to PDF format.
+//!
+//! This library provides:
+//! - CycloneDX VEX data model definitions
+//! - PDF generation capabilities
+//! - Utilities for processing VEX documents
+//!
+//! ## Architecture
+//!
+//! The library is organized into modules:
+//! - `model`: Data structures representing the CycloneDX VEX format
+//! - `pdf`: PDF generation functionality
+
 pub mod model {
     pub mod cyclonedx {
         

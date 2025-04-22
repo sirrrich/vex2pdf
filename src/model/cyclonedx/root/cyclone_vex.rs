@@ -1,3 +1,14 @@
+//! Core data structure representing a CycloneDX VEX document.
+//!
+//! This module implements the root structure for CycloneDX VEX format according to
+//! the CycloneDX 1.5 specification.
+
+/// The root structure of a CycloneDX VEX document.
+///
+/// Represents a complete VEX document with all components, vulnerabilities,
+/// and metadata according to the CycloneDX 1.5 specification.
+
+
 use super::*;
 use non_root::vulnerability::Vulnerability;
 use non_root::metadata::Metadata;

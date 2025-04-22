@@ -1,3 +1,13 @@
+//! PDF generation functionality for VEX reports.
+//!
+//! This module handles the conversion from CycloneDX VEX data structures to
+//! formatted PDF documents using the genpdf library.
+//!
+//! The generator supports various VEX elements including vulnerabilities,
+//! components, and document metadata.
+//! 
+
+
 use crate::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 use genpdf::elements::Paragraph;
 use genpdf::style::{Color, Style};
@@ -38,6 +48,17 @@ impl PdfGenerator {
         }
     }
 
+
+    /// Generates a PDF report from a CycloneDX VEX document.
+    ///
+    /// # Arguments
+    ///
+    /// * `vex` - The CycloneDX VEX document to convert
+    /// * `output_path` - Path where the PDF report will be saved
+    ///
+    /// # Returns
+    ///
+    /// Result indicating success or an error with details
     pub fn generate_pdf<P: AsRef<Path>>(
         &self,
         vex: &CycloneDxVex,
