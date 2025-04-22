@@ -1,0 +1,34 @@
+name: Rust CI for Windows
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Build Project
+      run: cargo build --release
+
+    - name: Run Tests
+      run: cargo test
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: target/release/
