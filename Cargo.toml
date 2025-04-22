@@ -11,6 +11,11 @@ readme = "README.md"
 keywords = ["vex", "pdf", "security", "cyclonedx", "vulnerability"]
 categories = ["command-line-utilities", "parsing"]
 
+exclude = [
+    ".github/",
+    ".gitignore",
+]
+
 [dependencies]
 genpdf = "0.2.0"
 serde = "1.0.219"
