@@ -67,8 +67,8 @@ pub struct Component {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pedigree: Option<Pedigree>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub externalReferences: Option<Vec<ExternalReference>>,
+    #[serde(rename="externalReferences",skip_serializing_if = "Option::is_none")]
+    pub external_references: Option<Vec<ExternalReference>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<Vec<Property>>,

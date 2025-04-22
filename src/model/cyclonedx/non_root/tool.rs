@@ -15,6 +15,6 @@ pub struct Tool {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hashes: Option<Vec<Hash>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub externalReferences: Option<Vec<ExternalReference>>,
+    #[serde(rename="externalReferences",skip_serializing_if = "Option::is_none")]
+    pub external_references: Option<Vec<ExternalReference>>,
 }
