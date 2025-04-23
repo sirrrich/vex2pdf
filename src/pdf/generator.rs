@@ -7,6 +7,7 @@
 //! components, and document metadata.
 //!
 
+use crate::model::cyclonedx::non_root::tool::Tools;
 use crate::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 use genpdf::elements::Paragraph;
 use genpdf::style::{Color, Style};
@@ -129,14 +130,55 @@ impl PdfGenerator {
                 doc.push(Paragraph::default().styled_string("Tools:", self.normal_style.clone()));
 
                 let mut ul_tools = genpdf::elements::UnorderedList::new();
-                for tool in tools {
-                    if let Some(tool_name) = &tool.name {
-                        ul_tools.push(
-                            Paragraph::default()
-                                .styled_string(tool_name, self.indent_style.clone()),
-                        );
+
+                match tools {
+                    Tools::Legacy(legacy_tools) => {
+                        for tool in legacy_tools {
+                            if let Some(tool_name) = &tool.name {
+                                ul_tools.push(
+                                    Paragraph::default()
+                                        .styled_string(tool_name, self.indent_style.clone()),
+                                );
+                            }
+                        }
+                    }
+                    Tools::Modern(modern_tools) => {
+                        // Handle components used as tools
+                        if let Some(components) = &modern_tools.components {
+                            for component in components {
+                                let component_name = &component.name;
+                                let display_name = if let Some(version) = &component.version {
+                                    format!("{} (v{})", component_name, version)
+                                } else {
+                                    component_name.clone()
+                                };
+
+                                ul_tools.push(
+                                    Paragraph::default()
+                                        .styled_string(&display_name, self.indent_style.clone()),
+                                );
+                            }
+                        }
+
+                        // Handle services used as tools
+                        if let Some(services) = &modern_tools.services {
+                            for service in services {
+                                let service_name = &service.name;
+                                let display_name = if let Some(version) = &service.version {
+                                    format!("{} (v{})", service_name, version)
+                                } else {
+                                    service_name.clone()
+                                };
+
+                                ul_tools.push(
+                                    Paragraph::default()
+                                        .styled_string(&display_name, self.indent_style.clone()),
+                                );
+                            }
+                        }
                     }
                 }
+
                 doc.push(ul_tools);
                 doc.push(genpdf::elements::Break::new(1));
             }

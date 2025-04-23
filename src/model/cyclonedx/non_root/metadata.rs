@@ -5,7 +5,7 @@ use license::*;
 use person::Person;
 use product::Product;
 use property::Property;
-use tool::Tool;
+use tool::Tools;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Metadata {
@@ -13,7 +13,7 @@ pub struct Metadata {
     pub timestamp: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<Tool>>,
+    pub tools: Option<Tools>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<Person>>,

@@ -84,6 +84,7 @@ pub mod pdf {
 #[cfg(test)]
 mod model_tests {
     use crate::model::cyclonedx::non_root::metadata::Metadata;
+    use crate::model::cyclonedx::non_root::tool::Tools;
     use crate::model::cyclonedx::non_root::vex_status::VexStatus::{
         Affected, NotAffected, Unknown,
     };
@@ -103,7 +104,7 @@ mod model_tests {
             serial_number: Some("urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79".to_string()),
             metadata: Some(Metadata {
                 timestamp: Some("2023-07-15T10:30:00Z".to_string()),
-                tools: Some(vec![]),
+                tools: Some(Tools::Legacy(vec![])),
                 authors: Some(vec![]),
                 component: None,
                 // other metadata fields
