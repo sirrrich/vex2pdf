@@ -15,70 +15,65 @@
 
 pub mod model {
     pub mod cyclonedx {
-        
+
         pub mod root {
-            use serde_derive::{Deserialize, Serialize};
             use super::non_root;
+            use serde_derive::{Deserialize, Serialize};
             pub mod cyclone_vex;
         }
-        
+
         pub mod non_root {
             use serde_derive::{Deserialize, Serialize};
-            
-            pub mod document_metadata;
-            pub mod product;
-            pub mod tracking_info;
-            pub mod vex_status;
-            pub mod vulnerability_statement;
+
             pub mod advisory;
             pub mod affects;
+            pub mod composition;
             pub mod credits;
+            pub mod data_classification;
+            pub mod dependency;
+            pub mod document_metadata;
+            pub mod external_reference;
+            pub mod hash;
             pub mod individual;
+            pub mod license;
+            pub mod metadata;
             pub mod organization;
+            pub mod organizational_entity;
+            pub mod person;
+            pub mod product;
             pub mod property;
+            pub mod service;
             pub mod source;
+            pub mod tool;
+            pub mod tracking_info;
+            pub mod vex_status;
             pub mod vulnerability;
             pub mod vulnerability_analysis;
             pub mod vulnerability_rating;
             pub mod vulnerability_reference;
-            pub mod metadata;
-            pub mod hash;
-            pub mod license;
-            pub mod person;
-            pub mod tool;
-            pub mod external_reference;
-            pub mod service;
-            pub mod data_classification;
-            pub mod organizational_entity;
-            pub mod dependency;
-            pub mod composition;
+            pub mod vulnerability_statement;
 
             pub mod component {
-                use serde_derive::{Deserialize, Serialize};
-                use super::license;
-                use super::hash;
                 use super::external_reference;
+                use super::hash;
+                use super::license;
                 use super::property;
+                use serde_derive::{Deserialize, Serialize};
+                pub mod attached_text;
+                pub mod commit;
                 pub mod component;
                 pub mod contact;
-                pub mod swid;
-                pub mod attached_text;
-                pub mod pedigree;
-                pub mod commit;
-                pub mod identifiable_action;
-                pub mod patch;
-                pub mod issue;
-                pub mod source;
-                pub mod evidence;
-                pub mod license_evidence;
                 pub mod copyright_evidence;
-                
-                
+                pub mod evidence;
+                pub mod identifiable_action;
+                pub mod issue;
+                pub mod license_evidence;
+                pub mod patch;
+                pub mod pedigree;
+                pub mod source;
+                pub mod swid;
             }
-            
         }
-
-
     }
 }
 
@@ -88,17 +83,16 @@ pub mod pdf {
 
 #[cfg(test)]
 mod model_tests {
-    use crate::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
+    use crate::model::cyclonedx::non_root::metadata::Metadata;
+    use crate::model::cyclonedx::non_root::vex_status::VexStatus::{
+        Affected, NotAffected, Unknown,
+    };
     use crate::model::cyclonedx::non_root::{
-        vex_status::VexStatus,
-        vulnerability::Vulnerability,
-        vulnerability_analysis::VulnerabilityAnalysis,
-        source::Source,
-        vulnerability_rating::VulnerabilityRating,
+        source::Source, vex_status::VexStatus, vulnerability::Vulnerability,
+        vulnerability_analysis::VulnerabilityAnalysis, vulnerability_rating::VulnerabilityRating,
         vulnerability_reference::VulnerabilityReference,
     };
-    use crate::model::cyclonedx::non_root::metadata::Metadata;
-    use crate::model::cyclonedx::non_root::vex_status::VexStatus::{Affected, NotAffected, Unknown};
+    use crate::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 
     fn create_sample_vex() -> CycloneDxVex {
         // Create a VEX document following CycloneDX 1.5 structure
@@ -301,7 +295,8 @@ mod model_tests {
         println!("Serialized VEX: {}", json);
 
         // Test deserialization
-        let deserialized: CycloneDxVex = serde_json::from_str(&json).expect("Failed to deserialize from JSON");
+        let deserialized: CycloneDxVex =
+            serde_json::from_str(&json).expect("Failed to deserialize from JSON");
 
         // Verify the round trip works
         assert_eq!(vex.bom_format, deserialized.bom_format);
@@ -316,8 +311,8 @@ mod model_tests {
             VexStatus::Affected,
             VexStatus::Unaffected,
             VexStatus::Unknown,
-            VexStatus::NotAffected,  // CycloneDX 1.4
-            VexStatus::Fixed,        // CycloneDX 1.4
+            VexStatus::NotAffected,        // CycloneDX 1.4
+            VexStatus::Fixed,              // CycloneDX 1.4
             VexStatus::UnderInvestigation, // CycloneDX 1.4
         ];
 
@@ -348,7 +343,8 @@ mod model_tests {
 
         // Read it back
         let content = fs::read_to_string(&temp_file).expect("Failed to read temp file");
-        let loaded_vex: CycloneDxVex = serde_json::from_str(&content).expect("Failed to parse JSON");
+        let loaded_vex: CycloneDxVex =
+            serde_json::from_str(&content).expect("Failed to parse JSON");
 
         // Clean up
         fs::remove_file(&temp_file).expect("Failed to remove temp file");
@@ -370,4 +366,3 @@ mod model_tests {
         println!("Sample VEX file created at sample_vex.json");
     }
 }
-

@@ -4,7 +4,7 @@ use super::*;
 pub struct Composition {
     pub aggregate: String,
     pub assemblies: Option<Vec<String>>,
-    
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dependencies: Option<Vec<String>>,
     pub completeness: Completeness,

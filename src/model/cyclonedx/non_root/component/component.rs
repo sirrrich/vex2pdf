@@ -1,13 +1,13 @@
 use super::*;
-use non_root::organizational_entity::OrganizationalEntity;
+use crate::model::cyclonedx::non_root;
+use evidence::Evidence;
+use external_reference::ExternalReference;
 use hash::Hash;
 use license::Licenses;
-use swid::Swid;
+use non_root::organizational_entity::OrganizationalEntity;
 use pedigree::Pedigree;
-use external_reference::ExternalReference;
 use property::Property;
-use evidence::Evidence;
-use crate::model::cyclonedx::non_root;
+use swid::Swid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Component {
@@ -67,7 +67,7 @@ pub struct Component {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pedigree: Option<Pedigree>,
 
-    #[serde(rename="externalReferences",skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "externalReferences", skip_serializing_if = "Option::is_none")]
     pub external_references: Option<Vec<ExternalReference>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -79,8 +79,3 @@ pub struct Component {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evidence: Option<Evidence>,
 }
-
-
-
-
-

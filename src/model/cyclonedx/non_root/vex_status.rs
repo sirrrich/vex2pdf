@@ -2,9 +2,8 @@
 //!
 //! These status values indicate whether a component is affected by a vulnerability,
 //! following both the CycloneDX 1.4 and 1.5 specifications.
-//! 
+//!
 use serde_derive::{Deserialize, Serialize};
-
 
 /// Status of a component with respect to a vulnerability.
 ///
@@ -16,7 +15,7 @@ pub enum VexStatus {
     Affected,
     Unaffected,
     Unknown,
-    NotAffected, // CycloneDX 1.4
-    Fixed, // CycloneDX 1.4
+    NotAffected,        // CycloneDX 1.4
+    Fixed,              // CycloneDX 1.4
     UnderInvestigation, // CycloneDX 1.4
 }

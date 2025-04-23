@@ -3,7 +3,7 @@ use attached_text::AttachedText;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Swid {
-    #[serde(rename="tagId",skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "tagId", skip_serializing_if = "Option::is_none")]
     pub tag_id: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -12,7 +12,7 @@ pub struct Swid {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
-    #[serde(rename="tagVersion",skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "tagVersion", skip_serializing_if = "Option::is_none")]
     pub tag_version: Option<i32>,
 
     #[serde(skip_serializing_if = "Option::is_none")]

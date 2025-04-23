@@ -10,7 +10,7 @@
 //! vex2pdf
 //! ```
 //!
-//! The tool will scan for JSON files, process any valid VEX documents, and generate 
+//! The tool will scan for JSON files, process any valid VEX documents, and generate
 //! corresponding PDF reports with the same filename but with a .pdf extension.
 //!
 //! ## Font Requirements
@@ -18,14 +18,12 @@
 //! This tool requires Liberation Sans fonts to render PDFs correctly.
 //! See the README for details on setting up fonts.
 
-
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 use vex2pdf::model::cyclonedx::root::cyclone_vex::CycloneDxVex;
 use vex2pdf::pdf::generator::PdfGenerator;
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Get the current directory
@@ -62,7 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     Ok(_) => println!("Successfully generated PDF: {}", output_path.display()),
                     Err(e) => println!("Failed to generate PDF for {}: {}", json_path.display(), e),
                 }
-            },
+            }
             Err(e) => println!("Failed to parse {}: {}", json_path.display(), e),
         }
     }

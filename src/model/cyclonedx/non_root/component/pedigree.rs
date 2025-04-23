@@ -1,6 +1,6 @@
 use super::*;
-use component::Component;
 use commit::Commit;
+use component::Component;
 use patch::Patch;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Pedigree {

@@ -20,4 +20,3 @@ pub struct Issue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<String>>,
 }
-

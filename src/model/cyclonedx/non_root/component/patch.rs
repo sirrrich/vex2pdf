@@ -13,4 +13,3 @@ pub struct Patch {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolves: Option<Vec<Issue>>,
 }
-

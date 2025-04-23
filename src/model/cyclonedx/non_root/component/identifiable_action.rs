@@ -11,4 +11,3 @@ pub struct IdentifiableAction {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
 }
-

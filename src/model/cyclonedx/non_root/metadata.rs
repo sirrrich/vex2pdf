@@ -1,12 +1,11 @@
 use super::*;
+use component::component::Component;
 use document_metadata::DocumentMetadata;
-use product::Product;
-use property::Property;
 use license::*;
 use person::Person;
+use product::Product;
+use property::Property;
 use tool::Tool;
-use component::component::Component;
-
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Metadata {
@@ -41,6 +40,3 @@ pub struct Metadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product: Option<Product>,
 }
-
-
-

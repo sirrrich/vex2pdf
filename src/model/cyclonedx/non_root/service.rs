@@ -2,8 +2,8 @@ use super::*;
 use data_classification::DataClassification;
 use external_reference::ExternalReference;
 use license::Licenses;
-use property::Property;
 use organizational_entity::OrganizationalEntity;
+use property::Property;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Service {
@@ -39,7 +39,7 @@ pub struct Service {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Licenses>,
 
-    #[serde(rename="externalReferences",skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "externalReferences", skip_serializing_if = "Option::is_none")]
     pub external_references: Option<Vec<ExternalReference>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -48,4 +48,3 @@ pub struct Service {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub services: Option<Vec<Service>>,
 }
-

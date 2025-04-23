@@ -7,33 +7,30 @@
 ///
 /// Represents a complete VEX document with all components, vulnerabilities,
 /// and metadata according to the CycloneDX 1.5 specification.
-
-
 use super::*;
-use non_root::vulnerability::Vulnerability;
-use non_root::metadata::Metadata;
 use non_root::component::component::Component;
-use non_root::external_reference::ExternalReference;
-use non_root::service::Service;
 use non_root::composition::Composition;
 use non_root::dependency::Dependency;
+use non_root::external_reference::ExternalReference;
+use non_root::metadata::Metadata;
+use non_root::service::Service;
+use non_root::vulnerability::Vulnerability;
 
 use std::path::Path;
 use std::{fs, io};
 
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CycloneDxVex {
     // Required fields
-    #[serde(rename="bomFormat")]
-    pub bom_format: String,  // Must be "CycloneDX"
-    #[serde(rename="specVersion")]
+    #[serde(rename = "bomFormat")]
+    pub bom_format: String, // Must be "CycloneDX"
+    #[serde(rename = "specVersion")]
     pub spec_version: String, // Like "1.4" or "1.5"
-    pub version: i32,       // Document version, default 1
+    pub version: i32, // Document version, default 1
 
     // Optional fields
-    #[serde(rename="serialNumber",skip_serializing_if = "Option::is_none")]
-    pub serial_number: Option<String>,  // RFC-4122 UUID
+    #[serde(rename = "serialNumber", skip_serializing_if = "Option::is_none")]
+    pub serial_number: Option<String>, // RFC-4122 UUID
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Metadata>,
@@ -44,7 +41,7 @@ pub struct CycloneDxVex {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub services: Option<Vec<Service>>,
 
-    #[serde(rename="externalReferences", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "externalReferences", skip_serializing_if = "Option::is_none")]
     pub external_references: Option<Vec<ExternalReference>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -57,8 +54,6 @@ pub struct CycloneDxVex {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vulnerabilities: Option<Vec<Vulnerability>>,
 }
-
-
 
 impl CycloneDxVex {
     pub fn from_json(json_str: &str) -> Result<Self, serde_json::Error> {
