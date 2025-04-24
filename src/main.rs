@@ -110,21 +110,25 @@ fn parse_vex_json(path: &Path) -> Result<Bom, Box<dyn Error>> {
 
                         println!();
                         println!("NOTE: Downgrading CycloneDX BOM from spec version 1.6 to 1.5");
-                        println!("Reason: Current implementation does not yet support spec version 1.6");
+                        println!(
+                            "Reason: Current implementation does not yet support spec version 1.6"
+                        );
                         println!("Warning: This compatibility mode only works for BOMs that don't utilize 1.6-specific fields");
-                        println!("         Processing will fail if 1.6-specific fields are encountered");   // Downgrade spec version
+                        println!(
+                            "         Processing will fail if 1.6-specific fields are encountered"
+                        ); // Downgrade spec version
                         println!();
-                        
+
                         json_value["specVersion"] = serde_json::Value::String("1.5".to_string());
 
                         // Try parsing with modified JSON
                         Ok(Bom::parse_json_value(json_value)?)
-                    },
-                    _ =>  Err(JsonReadError::BomError { error }.into())
+                    }
+                    _ => Err(JsonReadError::BomError { error }.into()),
                 }
-            },
-            _ => Err(err.into())
-        }
+            }
+            _ => Err(err.into()),
+        },
     }
 }
 
