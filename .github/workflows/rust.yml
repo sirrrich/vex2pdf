@@ -96,6 +96,8 @@ jobs:
           
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: vex2pdf v${{ steps.get_version.outputs.VERSION }}
           draft: false
