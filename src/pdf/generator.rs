@@ -65,7 +65,19 @@ impl PdfGenerator {
             fonts_dir = Path::new("./fonts/liberation-fonts");
         }
         let font_family = genpdf::fonts::from_files(fonts_dir, "LiberationSans", None)
-            .expect("Failed to load font family if you are on windows make sure a fonts directory is on the same level as the application and put Liberation fonts there");
+            .expect(
+                "Failed to load Liberation Sans fonts.\n\n\
+                        Searched in:\n\
+                        - System location: '/usr/share/fonts/liberation-sfonts'\n\
+                        - Local directory: './fonts/liberation-fonts'\n\n\
+                        Please download Liberation Sans fonts from:\n\
+                        https://github.com/liberationfonts/liberation-fonts/releases\n\n\
+                        Required files to place in './fonts/liberation-fonts':\n\
+                        - LiberationSans-Regular.ttf\n\
+                        - LiberationSans-Bold.ttf\n\
+                        - LiberationSans-Italic.ttf\n\
+                        - LiberationSans-BoldItalic.ttf\n"
+            );
         let document_title = "Vulnerability Report Document";
         let pdf_title = "VEX Vulnerability Report";
         let mut doc = Document::new(font_family);
