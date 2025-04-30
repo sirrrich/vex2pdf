@@ -29,12 +29,26 @@ use cyclonedx_bom::models::bom::Bom;
 use std::error::Error;
 use std::fs::{self};
 use std::path::{Path, PathBuf};
+use vex2pdf::pdf::font_config::FontsDir;
 use vex2pdf::pdf::generator::PdfGenerator;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Get the current directory
     let current_dir = std::env::current_dir()?;
     println!("Scanning for JSON files in: {}", current_dir.display());
+
+    // Print font path to be used
+    let fonts_dir = FontsDir::default();
+
+    println!(
+        "Active font path: {}",
+        fonts_dir
+            .get_active_font_dir()
+            .as_os_str()
+            .to_str()
+            .expect("unable to convert path to something usable")
+    );
+    println!();
 
     // Find all JSON files in the current directory
     let json_files = find_json_files(&current_dir)?;

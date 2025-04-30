@@ -7,6 +7,7 @@
 //! components, and document metadata.
 //!
 
+use crate::pdf::font_config::FontsDir;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
 use genpdf::elements::Paragraph;
@@ -60,23 +61,28 @@ impl PdfGenerator {
     /// Result indicating success or an error with details
     pub fn generate_pdf<P: AsRef<Path>>(&self, vex: &Bom, output_path: P) -> Result<(), io::Error> {
         // Set up the document with default fonts
-        let mut fonts_dir = Path::new("/usr/share/fonts/liberation-sfonts");
-        if !fonts_dir.exists() {
-            fonts_dir = Path::new("./fonts/liberation-fonts");
-        }
-        let font_family = genpdf::fonts::from_files(fonts_dir, "LiberationSans", None).expect(
-            "Failed to load Liberation Sans fonts.\n\n\
-                        Searched in:\n\
-                        - System location: '/usr/share/fonts/liberation-sfonts'\n\
-                        - Local directory: './fonts/liberation-fonts'\n\n\
-                        Please download Liberation Sans fonts from:\n\
-                        https://github.com/liberationfonts/liberation-fonts/releases\n\n\
-                        Required files to place in './fonts/liberation-fonts':\n\
-                        - LiberationSans-Regular.ttf\n\
-                        - LiberationSans-Bold.ttf\n\
-                        - LiberationSans-Italic.ttf\n\
-                        - LiberationSans-BoldItalic.ttf\n",
-        );
+
+        let fonts_dir = FontsDir::default();
+
+        let font_family =
+            genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None)
+                .expect(
+                    "Failed to load Liberation Sans fonts.\n\n\
+        Searched in:\n\
+        - Custom location (if set via VEX2PDF_FONTS_PATH environment variable)\n\
+        - Project location: './fonts/liberation-fonts'\n\
+        - User location: '~/.local/share/fonts/liberation-fonts'\n\
+        - System location: '/usr/share/fonts/liberation-fonts'\n\n\
+        Please download Liberation Sans fonts from:\n\
+        https://github.com/liberationfonts/liberation-fonts/releases\n\n\
+        Required files to place in one of the above locations:\n\
+        - LiberationSans-Regular.ttf\n\
+        - LiberationSans-Bold.ttf\n\
+        - LiberationSans-Italic.ttf\n\
+        - LiberationSans-BoldItalic.ttf\n
+        Or set VEX2PDF_FONTS_PATH environment variable to point to your liberation-fonts directory.\n\n",
+                );
+
         let document_title = "Vulnerability Report Document";
         let pdf_title = "VEX Vulnerability Report";
         let mut doc = Document::new(font_family);

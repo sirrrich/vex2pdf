@@ -26,8 +26,7 @@ The Liberation Sans fonts are NOT included in this repository due to licensing c
 
 **Alternative options:**
 - On Linux systems, if the fonts are installed system-wide (typically in `/usr/share/fonts/liberation-sans`), the application will attempt to use them.
-- Set the font path through an environment variable (not implemented yet).
-
+- Set the font path through the `VEX2PDF_FONTS_PATH` environment variable.
 
 > Note: The Liberation Fonts are licensed under the SIL Open Font License, not MIT. Please respect their license terms when using them.
 >
@@ -81,9 +80,42 @@ Generating PDF: second-sample.pdf
 Successfully generated PDF: UTF-8VEX.pdf
 ```
 ## Configuration
-No configuration is currently required. The application will:
-- Look for Liberation Sans fonts in `/usr/share/fonts/liberation-fonts`
-- Fall back to the included directory `./fonts/liberation-fonts`
+No configuration files are required. The application uses these locations for fonts in order of precedence:
+
+1. Custom directory specified via `VEX2PDF_FONTS_PATH` environment variable (if set)
+2. Project-local directory `./fonts/liberation-fonts` (if it exists)
+3. User's local fonts directory `~/.local/share/fonts/liberation-fonts` (if it exists)
+4. System-wide directory `/usr/share/fonts/liberation-fonts`
+
+### Font Path Configuration
+
+You can customize the font path by setting the `VEX2PDF_FONTS_PATH` environment variable:
+The specified directory should contain the Liberation Sans font files directly (not in a subdirectory).
+
+For example, if your fonts are in `/path/to/your/liberation-fonts/`, set:
+
+#### Linux
+
+```bash
+export VEX2PDF_FONTS_PATH=/path/to/your/liberation-fonts
+ ./vex2pdf
+```
+
+#### Windows (PowerShell)
+
+```bash
+$env:VEX2PDF_FONTS_PATH="C:\path\to\your\liberation-fonts" .\vex2pdf.exe
+```
+
+
+
+
+The specified directory should contain these font files:
+- LiberationSans-Regular.ttf
+- LiberationSans-Bold.ttf
+- LiberationSans-Italic.ttf
+- LiberationSans-BoldItalic.ttf
+
 
 ## Documentation
 

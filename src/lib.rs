@@ -13,16 +13,29 @@
 //! This library provides:
 //! - PDF generation capabilities for CycloneDX VEX documents
 //! - Support for various VEX elements including vulnerabilities, components, and metadata
+//! - Flexible font configuration with environment variable support
+//!
+//! ## Font Configuration
+//!
+//! The library searches for Liberation Sans fonts in these locations (in order of precedence):
+//! 1. Custom directory specified via `VEX2PDF_FONTS_PATH` environment variable (if set)
+//! 2. Project-local directory `./fonts/liberation-fonts` (if it exists)
+//! 3. User's local fonts directory `~/.local/share/fonts/liberation-fonts` (if it exists)
+//! 4. System-wide directory `/usr/share/fonts/liberation-fonts`
 //!
 //! ## Architecture
 //!
 //! The library is organized into modules:
 //! - `pdf`: PDF generation functionality
+//!   - `font_config`: Font configuration and discovery
+//!   - `generator`: PDF document generation
+//!
 
 // Re-export cyclonedx-bom models for use by consumers of this library
 pub use cyclonedx_bom as model;
 
 pub mod pdf {
+    pub mod font_config;
     pub mod generator;
 }
 
@@ -216,5 +229,142 @@ mod tests {
         fs::write("sample_vex.json", json_str).expect("Failed to write sample file");
 
         println!("Sample VEX file created at sample_vex.json");
+    }
+
+    // font config tests
+
+    #[test]
+    fn test_font_dirs_construction() {
+        use crate::pdf::font_config::FontsDir;
+        use std::path::PathBuf;
+
+        let font_dir = FontsDir::new("test-fonts", None);
+
+        // Test system path
+        assert_eq!(
+            font_dir.system,
+            PathBuf::from("/usr/share/fonts/test-fonts")
+        );
+
+        // Test project path
+        assert_eq!(font_dir.project, PathBuf::from("./fonts/test-fonts"));
+
+        // Test local path (need to account for HOME expansion)
+        if let Ok(home) = std::env::var("HOME") {
+            let expected_local_path =
+                PathBuf::from(format!("{}/.local/share/fonts/test-fonts", home));
+            assert_eq!(font_dir.local, expected_local_path);
+        }
+    }
+
+    #[test]
+    fn test_font_dir_precedence() {
+        use crate::pdf::font_config::FontsDir;
+        use std::env;
+        use std::fs;
+        use std::path::PathBuf;
+
+        // Create a test struct with paths we can control
+        struct TestFontDir {
+            font_dir: FontsDir,
+        }
+
+        impl TestFontDir {
+            fn new() -> Self {
+                // Create a FontsDir with custom paths for testing
+                let mut font_dir = FontsDir::new("test-fonts", None);
+
+                // Override with test paths
+                let temp_dir = env::temp_dir();
+                font_dir.system = temp_dir.join("system-fonts");
+                font_dir.local = temp_dir.join("local-fonts");
+                font_dir.project = temp_dir.join("project-fonts");
+
+                Self { font_dir }
+            }
+
+            fn create_dir(&self, path: &PathBuf) {
+                let _ = fs::create_dir_all(path);
+            }
+
+            fn remove_dir(&self, path: &PathBuf) {
+                let _ = fs::remove_dir_all(path);
+            }
+
+            fn clean_up(&self) {
+                self.remove_dir(&self.font_dir.system);
+                self.remove_dir(&self.font_dir.local);
+                self.remove_dir(&self.font_dir.project);
+            }
+        }
+
+        let test = TestFontDir::new();
+
+        // Test 1: Only system directory exists
+        test.create_dir(&test.font_dir.system);
+        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.system);
+        test.remove_dir(&test.font_dir.system);
+
+        // Test 2: Only local directory exists
+        test.create_dir(&test.font_dir.local);
+        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.local);
+        test.remove_dir(&test.font_dir.local);
+
+        // Test 3: Only project directory exists
+        test.create_dir(&test.font_dir.project);
+        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.project);
+        test.remove_dir(&test.font_dir.project);
+
+        // Test 4: All directories exist (should choose project)
+        test.create_dir(&test.font_dir.system);
+        test.create_dir(&test.font_dir.local);
+        test.create_dir(&test.font_dir.project);
+        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.project);
+
+        // Test 5: System and local exist (should choose local)
+        test.remove_dir(&test.font_dir.project);
+        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.local);
+
+        // Clean up
+        test.clean_up();
+    }
+
+    #[test]
+    fn test_font_dir_default() {
+        use crate::pdf::font_config::FontsDir;
+
+        let default_font_dir = FontsDir::default();
+        let liberation_font_dir = FontsDir::new("liberation-fonts", None);
+
+        // Default should use "liberation-fonts"
+        assert_eq!(
+            default_font_dir.system.to_string_lossy(),
+            liberation_font_dir.system.to_string_lossy()
+        );
+    }
+
+    #[test]
+    fn test_font_dir_env_var() {
+        use crate::pdf::font_config::FontsDir;
+        use std::env;
+        use std::path::PathBuf;
+
+        // Save original env var value
+        let original = env::var("VEX2PDF_FONTS_PATH").ok();
+
+        // Set custom path
+        let test_path = "/tmp/test-fonts-path";
+        env::set_var("VEX2PDF_FONTS_PATH", test_path);
+
+        // Test that default constructor picks up the env var
+        let default_fonts = FontsDir::default();
+        assert_eq!(default_fonts.custom, Some(PathBuf::from(test_path)));
+
+        // Clean up
+        if let Some(val) = original {
+            env::set_var("VEX2PDF_FONTS_PATH", val);
+        } else {
+            env::remove_var("VEX2PDF_FONTS_PATH");
+        }
     }
 }
