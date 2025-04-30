@@ -1,8 +1,7 @@
 [package]
 name = "vex2pdf"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2021"
-rust-version = "1.84.1"
 authors = ["Salem Bouraoui <jurassic.lizard@protonmail.com>"]
 license = "MIT"
 description = "A tool to convert CycloneDX(VEX) JSON documents to PDF reports"
