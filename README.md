@@ -77,7 +77,7 @@ Generating PDF: sample_vex.pdf
 Successfully generated PDF: sample_vex.pdf
 Processing: second-sample.json
 Generating PDF: second-sample.pdf
-Successfully generated PDF: UTF-8VEX.pdf
+Successfully generated PDF: second-sample.pdf
 ```
 ## Configuration
 No configuration files are required. The application uses these locations for fonts in order of precedence:
