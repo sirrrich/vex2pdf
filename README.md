@@ -80,14 +80,17 @@ Generating PDF: second-sample.pdf
 Successfully generated PDF: second-sample.pdf
 ```
 ## Configuration
-No configuration files are required. The application uses these locations for fonts in order of precedence:
+
+No configuration files are required. However the application has some customization options available
+
+### Font Path Configuration
+
+The application uses these locations for fonts in order of precedence:
 
 1. Custom directory specified via `VEX2PDF_FONTS_PATH` environment variable (if set)
 2. Project-local directory `./fonts/liberation-fonts` (if it exists)
 3. User's local fonts directory `~/.local/share/fonts/liberation-fonts` (if it exists)
 4. System-wide directory `/usr/share/fonts/liberation-fonts`
-
-### Font Path Configuration
 
 You can customize the font path by setting the `VEX2PDF_FONTS_PATH` environment variable:
 The specified directory should contain the Liberation Sans font files directly (not in a subdirectory).
@@ -115,6 +118,29 @@ The specified directory should contain these font files:
 - LiberationSans-Bold.ttf
 - LiberationSans-Italic.ttf
 - LiberationSans-BoldItalic.ttf
+
+
+### Environment Variables
+
+The following environment variables can be used to customize behavior:
+
+| Variable             | Purpose                                                            | Default                           |
+|----------------------|--------------------------------------------------------------------|-----------------------------------|
+| VEX2PDF_FONTS_PATH   | Custom path to look for font files                                 | Check [Font Path Configuration](#font-path-configuration) |
+| VEX2PDF_NOVULNS_MSG  | Controls the "No Vulnerabilities reported" message display         | true                              |
+
+
+#### VEX2PDF_NOVULNS_MSG
+
+This variable controls how the Vulnerabilities section appears when no vulnerabilities exist:
+- When set to "true" or not set (default): A "Vulnerabilities" section will be shown with a "No Vulnerabilities reported" message
+- When set to "false": The Vulnerabilities section will be completely omitted from the PDF
+
+Example:
+```bash
+# To hide the Vulnerabilities section when no vulnerabilities exist this is mostly useful when a report for a bom is generated
+VEX2PDF_NOVULNS_MSG=false vex2pdf
+```
 
 
 ## Documentation

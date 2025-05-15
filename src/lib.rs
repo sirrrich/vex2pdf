@@ -15,6 +15,15 @@
 //! - Support for various VEX elements including vulnerabilities, components, and metadata
 //! - Flexible font configuration with environment variable support
 //!
+//! ## Vulnerabilities Section Behavior
+//!
+//! By default, the library will:
+//! - Display a "Vulnerabilities" section with vulnerability details when vulnerabilities exist
+//! - Display a "Vulnerabilities" section with a "No Vulnerabilities reported" message when no vulnerabilities exist
+//! - The "No Vulnerabilities" message display can be controlled with the `VEX2PDF_NOVULNS_MSG` environment variable
+//!   (set to "false" to hide the section entirely when no vulnerabilities exist)
+
+//!
 //! ## Font Configuration
 //!
 //! The library searches for Liberation Sans fonts in these locations (in order of precedence):
@@ -29,6 +38,8 @@
 //! - `pdf`: PDF generation functionality
 //!   - `font_config`: Font configuration and discovery
 //!   - `generator`: PDF document generation
+//! - `run_utils`: Utilities for the CLI binary
+//!   - `env_vars`: Environment variable names statics
 //!
 
 // Re-export cyclonedx-bom models for use by consumers of this library
@@ -37,6 +48,10 @@ pub use cyclonedx_bom as model;
 pub mod pdf {
     pub mod font_config;
     pub mod generator;
+}
+
+pub mod run_utils {
+    pub mod env_vars;
 }
 
 #[cfg(test)]
@@ -346,15 +361,16 @@ mod tests {
     #[test]
     fn test_font_dir_env_var() {
         use crate::pdf::font_config::FontsDir;
+        use crate::run_utils::env_vars::EnvVarNames;
         use std::env;
         use std::path::PathBuf;
 
         // Save original env var value
-        let original = env::var("VEX2PDF_FONTS_PATH").ok();
+        let original = env::var(EnvVarNames::FontsPath.as_str()).ok();
 
         // Set custom path
         let test_path = "/tmp/test-fonts-path";
-        env::set_var("VEX2PDF_FONTS_PATH", test_path);
+        env::set_var(EnvVarNames::FontsPath.as_str(), test_path);
 
         // Test that default constructor picks up the env var
         let default_fonts = FontsDir::default();
@@ -362,9 +378,40 @@ mod tests {
 
         // Clean up
         if let Some(val) = original {
-            env::set_var("VEX2PDF_FONTS_PATH", val);
+            env::set_var(EnvVarNames::FontsPath.as_str(), val);
         } else {
-            env::remove_var("VEX2PDF_FONTS_PATH");
+            env::remove_var(EnvVarNames::FontsPath.as_str());
+        }
+    }
+
+    #[test]
+    fn test_novulns_msg_env_var_handling() {
+        use crate::run_utils::env_vars::EnvVarNames;
+        use std::env;
+
+        // Save original env var value
+        let original = env::var(EnvVarNames::NoVulnsMsg.as_str()).ok();
+
+        // Test setting and retrieving the env var
+        env::remove_var(EnvVarNames::NoVulnsMsg.as_str());
+        assert_eq!(
+            env::var(EnvVarNames::NoVulnsMsg.as_str()).is_err(),
+            true,
+            "Env var should not exist initially"
+        );
+
+        env::set_var(EnvVarNames::NoVulnsMsg.as_str(), "false");
+        assert_eq!(
+            env::var(EnvVarNames::NoVulnsMsg.as_str()).unwrap(),
+            "false",
+            "Env var should be retrievable with correct value"
+        );
+
+        // Clean up
+        if let Some(val) = original {
+            env::set_var(EnvVarNames::NoVulnsMsg.as_str(), val);
+        } else {
+            env::remove_var(EnvVarNames::NoVulnsMsg.as_str());
         }
     }
 }

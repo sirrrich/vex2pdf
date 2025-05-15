@@ -1,6 +1,8 @@
 use std::env;
 use std::path::PathBuf;
 
+use super::super::run_utils::env_vars::EnvVarNames;
+
 //FIXME add enum for different linux distribution fonts
 //FIXME make FontsDir be called by the main function and passed to the generator pdf
 //FIXME create environment variables enum variants
@@ -118,7 +120,7 @@ impl Default for FontsDir {
     /// ```
     fn default() -> Self {
         // Check for environment variable by default
-        let custom_path = env::var("VEX2PDF_FONTS_PATH").ok();
+        let custom_path = env::var(EnvVarNames::FontsPath.as_str()).ok();
         FontsDir::new("liberation-fonts", custom_path.as_deref())
     }
 }

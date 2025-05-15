@@ -8,6 +8,7 @@
 //!
 
 use crate::pdf::font_config::FontsDir;
+use crate::run_utils::env_vars::EnvVarNames;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
 use genpdf::elements::Paragraph;
@@ -220,11 +221,37 @@ impl PdfGenerator {
 
         doc.push(genpdf::elements::Break::new(2.0));
 
-        // Add Vulnerabilities section if available
+        // Default to showing the message (true by default)
+        let mut show_novulns_msg = true;
+
+        // Only check environment variable to see if we should disable the default behavior
+        if let Ok(vuln_msg_env) = std::env::var(EnvVarNames::NoVulnsMsg.as_str()) {
+            // Check for negative values that would disable the message
+            if vuln_msg_env.eq_ignore_ascii_case("false")
+                || vuln_msg_env.eq_ignore_ascii_case("off")
+                || vuln_msg_env.eq_ignore_ascii_case("no")
+                || vuln_msg_env.eq_ignore_ascii_case("0")
+            {
+                show_novulns_msg = false;
+            }
+            // For any other value, keep the default (true)
+        }
+
+        // First determine if vulnerabilities exist
+        let mut vulns_available = false;
         if let Some(vulnerabilities) = &vex.vulnerabilities {
+            vulns_available = !vulnerabilities.0.is_empty();
+        }
+
+        // Decide if we should show the vulnerabilities section at all
+        let show_vulns_section = vulns_available || show_novulns_msg;
+
+        if show_vulns_section {
             doc.push(Paragraph::default().styled_string("Vulnerabilities", self.header_style));
             doc.push(genpdf::elements::Break::new(1.0));
+        }
 
+        if let Some(vulnerabilities) = &vex.vulnerabilities {
             let mut ordered_list = genpdf::elements::OrderedList::new();
 
             // Add each vulnerability
@@ -279,6 +306,23 @@ impl PdfGenerator {
             // list_layout.push(ordered_list);
             doc.push(ordered_list);
             doc.push(genpdf::elements::Break::new(0.5));
+        }
+
+        //Add message if vulns are not available
+        if !vulns_available && show_novulns_msg {
+            let vulns_style = Style::new()
+                .bold()
+                .with_font_size(16)
+                .with_color(Color::Rgb(0, 100, 0));
+
+            doc.push(
+                genpdf::elements::Paragraph::new("No Vulnerabilities reported")
+                    .aligned(Alignment::Center)
+                    .padded(genpdf::Margins::vh(10, 0))
+                    .framed()
+                    .styled(vulns_style),
+            );
+            doc.push(genpdf::elements::Break::new(1.0));
         }
 
         // Add Components section if available
