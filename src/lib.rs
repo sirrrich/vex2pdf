@@ -38,8 +38,7 @@
 //! - `pdf`: PDF generation functionality
 //!   - `font_config`: Font configuration and discovery
 //!   - `generator`: PDF document generation
-//! - `run_utils`: Utilities for the CLI binary
-//!   - `env_vars`: Environment variable names statics
+//! - `lib_utils`: Utilities and data models used in this library and accompanying runnable
 //!
 
 // Re-export cyclonedx-bom models for use by consumers of this library
@@ -50,10 +49,34 @@ pub mod pdf {
     pub mod generator;
 }
 
-pub mod run_utils {
+pub mod lib_utils {
+    pub mod config;
     pub mod env_vars;
+    pub mod input_file_type;
+    pub mod run_utils;
 }
 
+use lib_utils::config::Config;
+use lib_utils::input_file_type::InputFileType;
+use lib_utils::run_utils::{find_files, parse_files};
+use pdf::generator::PdfGenerator;
+use std::error::Error;
+
+pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
+    let pdf_generator = PdfGenerator::new();
+
+    // Find json files
+    let json_files = find_files(config, InputFileType::JSON)?;
+    // Generate PDFs out of given json files
+    parse_files(&pdf_generator, &json_files, InputFileType::JSON);
+
+    // Find xml files and parse them
+    let xml_files = find_files(config, InputFileType::XML)?;
+    // Generate PDFs out of given xml files
+    parse_files(&pdf_generator, &xml_files, InputFileType::XML);
+
+    Ok(())
+}
 #[cfg(test)]
 mod tests {
     use cyclonedx_bom::models::bom::Bom;
@@ -200,7 +223,7 @@ mod tests {
     }
 
     #[test]
-    fn test_vex_file_io() {
+    fn test_vex_json_file_io() {
         use std::io::Write;
 
         let vex = create_sample_vex();
@@ -223,6 +246,39 @@ mod tests {
         let content_reader =
             BufReader::new(fs::File::open(&temp_file).expect("failed to open file"));
         let loaded_vex: Bom = Bom::parse_from_json(content_reader).expect("Failed to parse JSON");
+
+        // Clean up
+        fs::remove_file(&temp_file).expect("Failed to remove temp file");
+
+        // Verify
+        assert_eq!(vex.serial_number, loaded_vex.serial_number);
+    }
+
+    #[test]
+    fn test_vex_xml_file_io() {
+        use std::io::Write;
+
+        let vex = create_sample_vex();
+        let mut output = Vec::<u8>::new();
+        vex.clone()
+            .output_as_xml_v1_5(&mut output)
+            .expect("failed to read vex object");
+        let xml_str = String::from_utf8(output).expect("failed to serialize json object");
+
+        // Create a temporary file
+        let mut temp_file = std::env::temp_dir();
+        temp_file.push("test_vex.xml");
+
+        // Write the VEX to the file
+        let mut file = fs::File::create(&temp_file).expect("Failed to create temp file");
+        file.write_all(xml_str.as_bytes())
+            .expect("Failed to write to temp file");
+
+        // Read it back
+        let content_reader =
+            BufReader::new(fs::File::open(&temp_file).expect("failed to open file"));
+        let loaded_vex: Bom =
+            Bom::parse_from_xml_v1_5(content_reader).expect("Failed to parse JSON");
 
         // Clean up
         fs::remove_file(&temp_file).expect("Failed to remove temp file");
@@ -360,8 +416,8 @@ mod tests {
 
     #[test]
     fn test_font_dir_env_var() {
+        use crate::lib_utils::env_vars::EnvVarNames;
         use crate::pdf::font_config::FontsDir;
-        use crate::run_utils::env_vars::EnvVarNames;
         use std::env;
         use std::path::PathBuf;
 
@@ -386,7 +442,7 @@ mod tests {
 
     #[test]
     fn test_novulns_msg_env_var_handling() {
-        use crate::run_utils::env_vars::EnvVarNames;
+        use crate::lib_utils::env_vars::EnvVarNames;
         use std::env;
 
         // Save original env var value

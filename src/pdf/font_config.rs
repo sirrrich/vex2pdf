@@ -1,7 +1,7 @@
 use std::env;
 use std::path::PathBuf;
 
-use super::super::run_utils::env_vars::EnvVarNames;
+use super::super::lib_utils::env_vars::EnvVarNames;
 
 //FIXME add enum for different linux distribution fonts
 //FIXME make FontsDir be called by the main function and passed to the generator pdf
@@ -101,6 +101,44 @@ impl FontsDir {
         }
 
         active_path
+    }
+
+    /// Prints information about the active font directory to standard output.
+    ///
+    /// This method displays the path of the currently active font directory
+    /// as determined by the `get_active_font_dir()` method. It converts the
+    /// path to a string for display purposes, and will panic if the path
+    /// cannot be converted to a valid UTF-8 string.
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if the active font path contains invalid UTF-8 characters
+    /// that cannot be converted to a Rust string.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use vex2pdf::pdf::font_config::FontsDir;
+    ///
+    /// let fonts = FontsDir::default();
+    /// fonts.print_fonts_info(); // Prints the active font path to stdout
+    /// ```
+    ///
+    /// # Output Example
+    ///
+    /// ```text
+    /// Active font path: /usr/share/fonts/liberation-fonts
+    ///
+    /// ```
+    pub fn print_fonts_info(&self) {
+        println!(
+            "Active font path: {}",
+            self.get_active_font_dir()
+                .as_os_str()
+                .to_str()
+                .expect("unable to convert path to something usable")
+        );
+        println!();
     }
 }
 

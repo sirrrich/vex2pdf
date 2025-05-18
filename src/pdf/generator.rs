@@ -7,8 +7,8 @@
 //! components, and document metadata.
 //!
 
+use crate::lib_utils::env_vars::EnvVarNames;
 use crate::pdf::font_config::FontsDir;
-use crate::run_utils::env_vars::EnvVarNames;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
 use genpdf::elements::Paragraph;

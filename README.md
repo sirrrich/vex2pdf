@@ -7,7 +7,33 @@
 [![CI](https://github.com/jurassicLizard/vex2pdf/actions/workflows/rust.yml/badge.svg)](https://github.com/jurassicLizard/vex2pdf/actions/workflows/rust.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/jurassicLizard/vex2pdf)](https://github.com/jurassicLizard/vex2pdf/releases/latest)
 
-A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXchange) documents in JSON format to PDF reports.
+A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXchange) documents in JSON or XML format to PDF reports.
+
+<!-- TOC -->
+* [CycloneDX (VEX) to PDF Converter](#cyclonedx-vex-to-pdf-converter)
+  * [⚠️ Font Requirement](#-font-requirement)
+  * [Overview](#overview)
+  * [Features](#features)
+  * [Installation](#installation)
+    * [Prerequisites](#prerequisites)
+    * [Via Cargo](#via-cargo)
+    * [From Source](#from-source)
+    * [Windows Users](#windows-users)
+  * [Usage](#usage)
+  * [Example](#example)
+  * [Configuration](#configuration)
+    * [Font Path Configuration](#font-path-configuration)
+      * [Linux](#linux)
+      * [Windows (PowerShell)](#windows-powershell)
+    * [Environment Variables](#environment-variables)
+      * [VEX2PDF_NOVULNS_MSG](#vex2pdf_novulns_msg)
+  * [Documentation](#documentation)
+  * [CycloneDX VEX Format](#cyclonedx-vex-format)
+    * [Version 1.6 Compatibility Mode](#version-16-compatibility-mode)
+  * [Security Considerations](#security-considerations)
+  * [License](#license)
+  * [Acknowledgments](#acknowledgments)
+<!-- TOC -->
 
 ## ⚠️ Font Requirement
 
@@ -32,52 +58,97 @@ The Liberation Sans fonts are NOT included in this repository due to licensing c
 >
 
 ## Overview
-VEX-to-PDF is a Rust application that scans the current directory for CycloneDX VEX JSON files and converts them to human-readable PDF reports. It fully supports the CycloneDX VEX schema version 1.5 and provides compatibility for version 1.6 documents that only use 1.5 fields. Documents using 1.6-specific fields may not process correctly. The tool handles various elements of the VEX documentation format including vulnerabilities, components, metadata, and more.
+
+VEX2PDF is a Rust application that scans the current directory for CycloneDX VEX files (JSON and XML) and converts them to human-readable PDF reports. It fully supports the CycloneDX VEX schema version 1.5 and provides compatibility for version 1.6 documents that only use 1.5 fields. Documents using 1.6-specific fields may not process correctly. The tool handles various elements of the VEX documentation format including vulnerabilities, components, metadata, and more.
+
 ## Features
-- Automatically scans directories for JSON files with VEX data
+- Automatically scans directories for JSON and XML files with VEX data
 - Converts VEX documents to structured PDF reports
+- Supports both JSON and XML CycloneDX formats
 - Preserves all key VEX information including:
   - Document metadata and timestamps
   - Vulnerability details with severity ratings
   - Component information
   - Tools used to generate the VEX document
-
 - Cross-platform support (Linux, Windows)
 
 ## Installation
 ### Prerequisites
 - Rust and Cargo (latest stable version)
-- Liberation Sans fonts (must be obtained separately as described above)
+- Liberation Sans fonts (must be obtained separately as described in the [Font Requirement](#-font-requirement) section)
+
+### Via Cargo
+The easiest way to install VEX2PDF is directly from crates.io:
+
+```bash
+cargo install vex2pdf
+```
+
+After installation, the `vex2pdf` binary will be available in your Cargo bin directory.
+
+> ⚠️ **Important**: You'll still need to set up the Liberation Sans fonts as described in the [Font Requirement](#-font-requirement) section. When installing via Cargo, fonts should be placed in one of the paths listed in the [Font Path Configuration](#font-path-configuration) section.
+
+
 
 ### From Source
-Clone the repository, download and place Liberation fonts as described in the Font Requirement section, then build the application with . The binary will be available at target/release/vex2pdf. `cargo build --release`
+Clone the repository, then build the application with `cargo build --release`. The binary will be available at target/release/vex2pdf.
 ### Windows Users
 Windows users can either:
-1. Build using Rust for Windows
-2. Use a pre-built binary (when available)
+1. Install via Cargo as described above
+2. Build using Rust for Windows from source
+3. Use a pre-built binary (GitHub Releases Section)
+
 
 ## Usage
-Run the application in a directory containing CycloneDX VEX JSON files:
-``` 
+
+> ⚠️ Liberation fonts are needed (Check the [Font Path Configuration](#font-path-configuration) section above for more details)
+
+Run the application in a directory containing CycloneDX VEX files (JSON or XML):
+
+```shell 
 ./vex2pdf
 ```
 The tool will:
-1. Scan the current directory for JSON files
+1. Scan the current directory for JSON and XML files
 2. Attempt to parse each file as a CycloneDX VEX document
 3. Generate a PDF report with the same name as the original file (with .pdf extension)
 4. Display progress and results in the console
 
+
 ## Example
 ``` 
 $ ./vex2pdf
-Scanning for JSON files in: /home/user/vex-documents
-Found 3 JSON files
-Processing: sample_vex.json
-Generating PDF: sample_vex.pdf
-Successfully generated PDF: sample_vex.pdf
-Processing: second-sample.json
-Generating PDF: second-sample.pdf
-Successfully generated PDF: second-sample.pdf
+vex2pdf v0.6.0 - CycloneDX (VEX) to PDF Converter
+Copyright (c) 2025 jurassicLizard - MIT License
+
+Active font path: /usr/share/fonts/liberation-fonts
+
+Scanning for JSON files in: ./documents
+Found 2 JSON files
+Processing: ./documents/example1.json
+Generating PDF: ./documents/example1.pdf
+Successfully generated PDF: ./documents/example1.pdf
+Processing: ./documents/example2.json
+Generating PDF: ./documents/example2.pdf
+Successfully generated PDF: ./documents/example2.pdf
+
+Scanning for XML files in: ./documents
+Found 5 XML files
+Processing: ./documents/example1.xml
+Generating PDF: ./documents/example1.pdf
+Successfully generated PDF: ./documents/example1.pdf
+Processing: ./documents/example2.xml
+Generating PDF: ./documents/example2.pdf
+Successfully generated PDF: ./documents/example2.pdf
+Processing: ./documents/example3.xml
+
+NOTE: Downgrading CycloneDX BOM from spec version 1.6 to 1.5
+Reason: Current implementation does not yet support spec version 1.6
+Warning: This compatibility mode only works for BOMs that don't utilize 1.6-specific fields
+         Processing will fail if 1.6-specific fields are encountered
+
+Generating PDF: ./documents/example3.pdf
+Successfully generated PDF: ./documents/example3.pdf
 ```
 ## Configuration
 
@@ -145,13 +216,17 @@ VEX2PDF_NOVULNS_MSG=false vex2pdf
 
 ## Documentation
 
-> **Note**: Rust documentation is a work in progress. Please refer to the code comments for details on specific functions and data structures.
->
 
-To generate documentation:
-``` 
+For full API documentation, please visit:
+- [vex2pdf on docs.rs](https://docs.rs/vex2pdf)
+
+> **Note**: Rust documentation is a work in progress. Please refer to the code comments for details on specific functions and data structures.
+
+To generate documentation locally:
+```bash
 cargo doc --open
 ```
+
 
 ## CycloneDX VEX Format
 This tool fully supports CycloneDX VEX schema version 1.5 and provides compatibility for version 1.6 documents that only use 1.5 fields. Documents using 1.6-specific fields may not process correctly. For more information about the CycloneDX VEX format, see:
