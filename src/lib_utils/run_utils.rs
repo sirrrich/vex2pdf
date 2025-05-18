@@ -197,7 +197,7 @@ pub(crate) fn parse_vex_json(path: &Path) -> Result<Bom, Box<dyn Error>> {
 fn print_downgrade_warning() {
     println!();
     println!("NOTE: Downgrading CycloneDX BOM from spec version 1.6 to 1.5");
-    println!("Reason: Current implementation does not yet support spec version 1.6");
+    println!("Reason: Current implementation does not yet fully support spec version 1.6");
     println!("Warning: This compatibility mode only works for BOMs that don't utilize 1.6-specific fields");
     println!("         Processing will fail if 1.6-specific fields are encountered");
     println!();
