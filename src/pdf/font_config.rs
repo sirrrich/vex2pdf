@@ -186,11 +186,7 @@ impl FontsDir {
     /// use vex2pdf::pdf::font_config::FontsDir;
     ///
     /// let fonts_dir = FontsDir::default();
-    /// // Before: Loading fonts from filesystem
-    /// let font_family = genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None)
-    ///     .expect("Failed to load Liberation Sans fonts...");
-    ///
-    /// // After: Using embedded fonts with fallback
+    /// 
     /// let font_family = fonts_dir.load_embedded_font_family()
     ///     .unwrap_or_else(|_| {
     ///         // Fall back to loading fonts from filesystem
