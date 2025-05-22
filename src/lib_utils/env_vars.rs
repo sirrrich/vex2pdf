@@ -5,6 +5,10 @@ pub enum EnvVarNames {
 
     /// Custom path to look for font files
     /// When set, this is checked before standard system locations
+    #[deprecated(
+        since = "0.6.1",
+        note = "Fonts are now embedded in the binary. Use [`FontsDir::load_embedded_font_family()`](crate::pdf::font_config::FontsDir::load_embedded_font_family) instead."
+    )]
     FontsPath,
 
     /// Controls whether to display "No Vulnerabilities reported" message
@@ -13,8 +17,14 @@ pub enum EnvVarNames {
     /// When set to "true" or not set (default), the "No Vulnerabilities reported"
     /// message will be displayed when no vulnerabilities are present.
     NoVulnsMsg,
+    /// USER CANNOT YET OVERRIDE THIS OPTION
     ProcessJson,
+    /// USER CANNOT YET OVERRIDE THIS OPTION
     ProcessXml,
+    /// Shows OSS License Information if set to true
+    ShowOssLicenses,
+    /// Shows Software version and copyright Information if set to true
+    VersionInfo,
 }
 
 impl EnvVarNames {
@@ -25,17 +35,74 @@ impl EnvVarNames {
             EnvVarNames::NoVulnsMsg => "VEX2PDF_NOVULNS_MSG",
             EnvVarNames::ProcessJson => "VEX2PDF_JSON",
             EnvVarNames::ProcessXml => "VEX2PDF_XML",
+            EnvVarNames::ShowOssLicenses => "VEX2PDF_SHOW_OSS_LICENSES",
+            EnvVarNames::VersionInfo => "VEX2PDF_VERSION_INFO",
         }
     }
+    /// this is useful for environment variables which should be on by default
     pub fn is_on_or_unset(&self) -> bool {
         match std::env::var(self.as_str()) {
-            Ok(value) => {
-                !(value.eq_ignore_ascii_case("false")
-                    || value.eq_ignore_ascii_case("off")
-                    || value.eq_ignore_ascii_case("no")
-                    || value.eq_ignore_ascii_case("0"))
+            Ok(value) => self.is_value_on(&value),
+            Err(_) => true, // Variable isn't set, default to ON
+        }
+    }
+
+    pub fn is_on(&self) -> bool {
+        match std::env::var(self.as_str()) {
+            Ok(value) => self.is_value_on(&value),
+            Err(_) => false, // Variable isn't set, so we are off
+        }
+    }
+
+    // Helper method to determine if a value represents "on"
+    fn is_value_on(&self, value: &str) -> bool {
+        !(value.eq_ignore_ascii_case("false")
+            || value.eq_ignore_ascii_case("off")
+            || value.eq_ignore_ascii_case("no")
+            || value.eq_ignore_ascii_case("0"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::EnvVarNames;
+
+    // tests for private functions that cannot be tested in lib
+    #[test]
+    fn test_is_value_on_private() {
+        // Test is_value_on directly
+        {
+            let var = EnvVarNames::ProcessJson; // must be different than the tests under lib.rs to not cause race conditions
+
+            // True values
+            for value in &[
+                "true",
+                "True",
+                "TRUE",
+                "yes",
+                "YES",
+                "1",
+                "on",
+                "ON",
+                "anything_else",
+            ] {
+                assert_eq!(
+                    var.is_value_on(value),
+                    true,
+                    "is_value_on() failed for value: {}",
+                    value
+                );
             }
-            Err(_) => true, // Variable not set, default to ON
+
+            // False values
+            for value in &["false", "False", "FALSE", "no", "NO", "0", "off", "OFF"] {
+                assert_eq!(
+                    var.is_value_on(value),
+                    false,
+                    "is_value_on() failed for value: {}",
+                    value
+                );
+            }
         }
     }
 }

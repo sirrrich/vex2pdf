@@ -27,11 +27,8 @@
 use std::error::Error;
 use std::process;
 use vex2pdf::lib_utils::config::Config;
-use vex2pdf::lib_utils::run_utils::print_copyright;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    print_copyright();
-
     let config = Config::build().unwrap_or_else(|err| {
         eprintln!("Problem setting up working environment:");
         eprintln!("{}", { err });

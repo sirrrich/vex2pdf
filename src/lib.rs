@@ -56,6 +56,7 @@ pub mod lib_utils {
     pub mod run_utils;
 }
 
+use crate::lib_utils::run_utils::print_copyright;
 use lib_utils::config::Config;
 use lib_utils::input_file_type::InputFileType;
 use lib_utils::run_utils::{find_files, parse_files};
@@ -64,6 +65,25 @@ use std::error::Error;
 
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     let pdf_generator = PdfGenerator::new();
+
+    if config.show_oss_licenses {
+        // show OSS licenses and return
+        print_copyright();
+        let main_license_text = include_bytes!("../LICENSE.md");
+        let trimmed_license =
+            String::from_utf8_lossy(main_license_text).replacen("# MIT License", "", 1);
+        println!("{}", trimmed_license);
+        println!();
+        println!("-----------------------------------------------------------------------------\n");
+        println!("This software makes use of Liberation Fonts licensed under SIL as follows : ");
+        println!();
+        let sil_license_text = include_bytes!("../external/fonts/liberation-fonts/LICENSE");
+
+        println!("{}", String::from_utf8_lossy(sil_license_text));
+
+        // abort any processing
+        return Ok(());
+    }
 
     // Find json files
     let json_files = find_files(config, InputFileType::JSON)?;
@@ -468,6 +488,107 @@ mod tests {
             env::set_var(EnvVarNames::NoVulnsMsg.as_str(), val);
         } else {
             env::remove_var(EnvVarNames::NoVulnsMsg.as_str());
+        }
+    }
+
+    #[test]
+    fn test_embedded_fonts_load_correctly() {
+        use crate::pdf::font_config::FontsDir;
+
+        let fonts_dir = FontsDir::default();
+        let result = fonts_dir.load_embedded_font_family();
+        assert!(
+            result.is_ok(),
+            "Failed to load embedded fonts: {:?}",
+            result.err()
+        );
+
+        // Verify we have all font variants
+        let font_family = result;
+
+        assert!(font_family.is_ok());
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::lib_utils::env_vars::EnvVarNames;
+        use std::env;
+
+        #[test]
+        fn test_env_var_behavior() {
+            // Use a different enum variant for each test section to avoid interference
+
+            // Test is_on when var not set
+            {
+                let var = EnvVarNames::ProcessXml;
+                env::remove_var(var.as_str());
+                assert_eq!(
+                    var.is_on(),
+                    false,
+                    "is_on() should return false when var not set"
+                );
+            }
+
+            // Test is_on with true values
+            {
+                let var = EnvVarNames::ProcessXml;
+                for value in &["true", "True", "TRUE", "yes", "YES", "1", "on", "ON"] {
+                    env::set_var(var.as_str(), value);
+                    assert_eq!(var.is_on(), true, "is_on() failed for value: {}", value);
+                    env::remove_var(var.as_str()); // Clean up after each test
+                }
+            }
+
+            // Test is_on with false values
+            {
+                let var = EnvVarNames::ProcessXml;
+                for value in &["false", "False", "FALSE", "no", "NO", "0", "off", "OFF"] {
+                    env::set_var(var.as_str(), value);
+                    assert_eq!(var.is_on(), false, "is_on() failed for value: {}", value);
+                    env::remove_var(var.as_str()); // Clean up after each test
+                }
+            }
+
+            // Test is_on_or_unset when var not set
+            {
+                let var = EnvVarNames::ProcessXml;
+                env::remove_var(var.as_str());
+                assert_eq!(
+                    var.is_on_or_unset(),
+                    true,
+                    "is_on_or_unset() should return true when var not set"
+                );
+            }
+
+            // Test is_on_or_unset with true values
+            {
+                let var = EnvVarNames::ProcessXml;
+                for value in &["true", "True", "TRUE", "yes", "YES", "1", "on", "ON"] {
+                    env::set_var(var.as_str(), value);
+                    assert_eq!(
+                        var.is_on_or_unset(),
+                        true,
+                        "is_on_or_unset() failed for value: {}",
+                        value
+                    );
+                    env::remove_var(var.as_str()); // Clean up after each test
+                }
+            }
+
+            // Test is_on_or_unset with false values
+            {
+                let var = EnvVarNames::ProcessXml;
+                for value in &["false", "False", "FALSE", "no", "NO", "0", "off", "OFF"] {
+                    env::set_var(var.as_str(), value);
+                    assert_eq!(
+                        var.is_on_or_unset(),
+                        false,
+                        "is_on_or_unset() failed for value: {}",
+                        value
+                    );
+                    env::remove_var(var.as_str()); // Clean up after each test
+                }
+            }
         }
     }
 }

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2025-05-22
+
+### Changed
+- Updated [Readme](README.md)
+
+### Added
+- Made liberation-fonts embedded in the binary
+- Added the VEX2PDF_SHOW_OSS_LICENSES environment variable for showing relevant OSS Licenses
+- Added the VEX2PDF_VERSION_INFO environment variable in order to make version info optional
+
+### Deprecated
+- the VEX2PDF_FONTS_PATH environment variable is now deprecated. Starting from 0.7.0 we will only rely on embedded fonts to make 
+the software more portable and simplify the code
+
 ## [0.6.0] - 2025-05-20
 
 ### Changed

@@ -65,24 +65,35 @@ impl PdfGenerator {
 
         let fonts_dir = FontsDir::default();
 
-        let font_family =
-            genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None)
-                .expect(
-                    "Failed to load Liberation Sans fonts.\n\n\
-        Searched in:\n\
-        - Custom location (if set via VEX2PDF_FONTS_PATH environment variable)\n\
-        - Project location: './fonts/liberation-fonts'\n\
-        - User location: '~/.local/share/fonts/liberation-fonts'\n\
-        - System location: '/usr/share/fonts/liberation-fonts'\n\n\
-        Please download Liberation Sans fonts from:\n\
-        https://github.com/liberationfonts/liberation-fonts/releases\n\n\
-        Required files to place in one of the above locations:\n\
-        - LiberationSans-Regular.ttf\n\
-        - LiberationSans-Bold.ttf\n\
-        - LiberationSans-Italic.ttf\n\
-        - LiberationSans-BoldItalic.ttf\n
-        Or set VEX2PDF_FONTS_PATH environment variable to point to your liberation-fonts directory.\n\n",
-                );
+        let custom_fonts_path =
+            genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None); //FIXME deprecated will be replaced by embedded fonts in the future
+
+        // Checking if a fonts directory override is there else we use embedded fonts with fallback
+
+        let font_family = custom_fonts_path.unwrap_or_else(|_| {
+            fonts_dir.load_embedded_font_family()
+                .unwrap_or_else(|_| {
+                    // Fall back to loading fonts from filesystem
+                    println!("**** WARNING! : Failed to load embedded fonts falling back to filesystem fonts");
+                    genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None)
+                        .expect(
+                            "Failed to load Liberation Sans fonts.\n\n\
+                    Searched in:\n\
+                    - Embedded Font files (failed to load)
+                    - Custom location (if set via VEX2PDF_FONTS_PATH environment variable)\n\
+                    - Project location: './fonts/liberation-fonts'\n\
+                    - User location: '~/.local/share/fonts/liberation-fonts'\n\
+                    - System location: '/usr/share/fonts/liberation-fonts'\n\n\
+                    Please download Liberation Sans fonts from:\n\
+                    https://github.com/liberationfonts/liberation-fonts/releases\n\n\
+                    Required files to place in one of the above locations:\n\
+                    - LiberationSans-Regular.ttf\n\
+                    - LiberationSans-Bold.ttf\n\
+                    - LiberationSans-Italic.ttf\n\
+                    - LiberationSans-BoldItalic.ttf\n
+                    Or set VEX2PDF_FONTS_PATH environment variable to point to your liberation-fonts directory.\n\n")
+                })
+        });
 
         let document_title = "Vulnerability Report Document";
         let pdf_title = "VEX Vulnerability Report";
