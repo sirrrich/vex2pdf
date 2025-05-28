@@ -26,11 +26,7 @@
 //!
 //! ## Font Configuration
 //!
-//! The library searches for Liberation Sans fonts in these locations (in order of precedence):
-//! 1. Custom directory specified via `VEX2PDF_FONTS_PATH` environment variable (if set)
-//! 2. Project-local directory `./fonts/liberation-fonts` (if it exists)
-//! 3. User's local fonts directory `~/.local/share/fonts/liberation-fonts` (if it exists)
-//! 4. System-wide directory `/usr/share/fonts/liberation-fonts`
+//! Liberation Sans Fonts are embedded and no extra configuration is needed for fonts
 //!
 //! ## Architecture
 //!
@@ -63,9 +59,58 @@ use lib_utils::run_utils::{find_files, parse_files};
 use pdf::generator::PdfGenerator;
 use std::error::Error;
 
+/// Processes CycloneDX VEX documents according to the provided configuration.
+///
+/// This function serves as the main entry point for the library's functionality.
+/// It finds and processes both JSON and XML files as specified in the configuration,
+/// converting them to PDF format with embedded fonts.
+///
+/// # Arguments
+///
+/// * `config` - Configuration settings that control processing behavior
+///
+/// # Returns
+///
+/// * `Result<(), Box<dyn Error>>` - Success (`Ok`) if processing completes without errors,
+///   or an error (`Err`) if something goes wrong
+///
+/// # Behavior
+///
+/// When `show_oss_licenses` is enabled in the configuration, this function displays
+/// license information and exits without processing any files.
+///
+/// Otherwise, it performs these operations in sequence:
+/// 1. Finds JSON files according to the configuration
+/// 2. Processes found JSON files to generate PDFs
+/// 3. Finds XML files according to the configuration
+/// 4. Processes found XML files to generate PDFs
+///
+/// # Fonts
+///
+/// Liberation Sans fonts are embedded in the generated PDFs, eliminating the need
+/// for font installation on the system viewing the PDFs.
+///
+/// # Environment Variables
+///
+/// Various aspects of PDF generation can be controlled through environment variables:
+/// - `VEX2PDF_NOVULNS_MSG`: Controls whether to show a message when no vulnerabilities exist
+/// - `VEX2PDF_REPORT_TITLE`: Sets a custom title for the report
+/// - `VEX2PDF_PDF_META_NAME`: Sets the PDF metadata name
+/// - `VEX2PDF_VERSION_INFO`: Shows version information before executing normally
+///
+/// # Example
+///
+/// ```
+/// use vex2pdf::lib_utils::config::Config;
+/// use vex2pdf::run;
+///
+/// let config = Config::build();
+/// match run(&config) {
+///     Ok(_) => println!("Processing completed successfully"),
+///     Err(e) => eprintln!("Error during processing: {}", e),
+/// }
+/// ```
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
-    let pdf_generator = PdfGenerator::new();
-
     if config.show_oss_licenses {
         // show OSS licenses and return
         print_copyright();
@@ -84,6 +129,12 @@ pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
         // abort any processing
         return Ok(());
     }
+
+    // Begin pdf generation
+    let report_title = config.report_title.as_deref();
+    let pdf_name = config.pdf_meta_name.as_deref();
+
+    let pdf_generator = PdfGenerator::new(report_title, pdf_name);
 
     // Find json files
     let json_files = find_files(config, InputFileType::JSON)?;
@@ -322,144 +373,6 @@ mod tests {
         println!("Sample VEX file created at sample_vex.json");
     }
 
-    // font config tests
-
-    #[test]
-    fn test_font_dirs_construction() {
-        use crate::pdf::font_config::FontsDir;
-        use std::path::PathBuf;
-
-        let font_dir = FontsDir::new("test-fonts", None);
-
-        // Test system path
-        assert_eq!(
-            font_dir.system,
-            PathBuf::from("/usr/share/fonts/test-fonts")
-        );
-
-        // Test project path
-        assert_eq!(font_dir.project, PathBuf::from("./fonts/test-fonts"));
-
-        // Test local path (need to account for HOME expansion)
-        if let Ok(home) = std::env::var("HOME") {
-            let expected_local_path =
-                PathBuf::from(format!("{}/.local/share/fonts/test-fonts", home));
-            assert_eq!(font_dir.local, expected_local_path);
-        }
-    }
-
-    #[test]
-    fn test_font_dir_precedence() {
-        use crate::pdf::font_config::FontsDir;
-        use std::env;
-        use std::fs;
-        use std::path::PathBuf;
-
-        // Create a test struct with paths we can control
-        struct TestFontDir {
-            font_dir: FontsDir,
-        }
-
-        impl TestFontDir {
-            fn new() -> Self {
-                // Create a FontsDir with custom paths for testing
-                let mut font_dir = FontsDir::new("test-fonts", None);
-
-                // Override with test paths
-                let temp_dir = env::temp_dir();
-                font_dir.system = temp_dir.join("system-fonts");
-                font_dir.local = temp_dir.join("local-fonts");
-                font_dir.project = temp_dir.join("project-fonts");
-
-                Self { font_dir }
-            }
-
-            fn create_dir(&self, path: &PathBuf) {
-                let _ = fs::create_dir_all(path);
-            }
-
-            fn remove_dir(&self, path: &PathBuf) {
-                let _ = fs::remove_dir_all(path);
-            }
-
-            fn clean_up(&self) {
-                self.remove_dir(&self.font_dir.system);
-                self.remove_dir(&self.font_dir.local);
-                self.remove_dir(&self.font_dir.project);
-            }
-        }
-
-        let test = TestFontDir::new();
-
-        // Test 1: Only system directory exists
-        test.create_dir(&test.font_dir.system);
-        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.system);
-        test.remove_dir(&test.font_dir.system);
-
-        // Test 2: Only local directory exists
-        test.create_dir(&test.font_dir.local);
-        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.local);
-        test.remove_dir(&test.font_dir.local);
-
-        // Test 3: Only project directory exists
-        test.create_dir(&test.font_dir.project);
-        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.project);
-        test.remove_dir(&test.font_dir.project);
-
-        // Test 4: All directories exist (should choose project)
-        test.create_dir(&test.font_dir.system);
-        test.create_dir(&test.font_dir.local);
-        test.create_dir(&test.font_dir.project);
-        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.project);
-
-        // Test 5: System and local exist (should choose local)
-        test.remove_dir(&test.font_dir.project);
-        assert_eq!(test.font_dir.get_active_font_dir(), &test.font_dir.local);
-
-        // Clean up
-        test.clean_up();
-    }
-
-    #[test]
-    fn test_font_dir_default() {
-        use crate::pdf::font_config::FontsDir;
-
-        let default_font_dir = FontsDir::default();
-        let liberation_font_dir = FontsDir::new("liberation-fonts", None);
-
-        // Default should use "liberation-fonts"
-        assert_eq!(
-            default_font_dir.system.to_string_lossy(),
-            liberation_font_dir.system.to_string_lossy()
-        );
-    }
-
-    #[test]
-    fn test_font_dir_env_var() {
-        use crate::lib_utils::env_vars::EnvVarNames;
-        use crate::pdf::font_config::FontsDir;
-        use std::env;
-        use std::path::PathBuf;
-
-        // Save original env var value
-        let original = env::var(EnvVarNames::FontsPath.as_str()).ok();
-
-        // Set custom path
-        let test_path = "/tmp/test-fonts-path";
-        env::set_var(EnvVarNames::FontsPath.as_str(), test_path);
-
-        // Test that default constructor picks up the env var
-        let default_fonts = FontsDir::default();
-        assert_eq!(default_fonts.custom, Some(PathBuf::from(test_path)));
-
-        // Clean up
-        if let Some(val) = original {
-            env::set_var(EnvVarNames::FontsPath.as_str(), val);
-        } else {
-            env::remove_var(EnvVarNames::FontsPath.as_str());
-        }
-    }
-
     #[test]
     fn test_novulns_msg_env_var_handling() {
         use crate::lib_utils::env_vars::EnvVarNames;
@@ -495,18 +408,7 @@ mod tests {
     fn test_embedded_fonts_load_correctly() {
         use crate::pdf::font_config::FontsDir;
 
-        let fonts_dir = FontsDir::default();
-        let result = fonts_dir.load_embedded_font_family();
-        assert!(
-            result.is_ok(),
-            "Failed to load embedded fonts: {:?}",
-            result.err()
-        );
-
-        // Verify we have all font variants
-        let font_family = result;
-
-        assert!(font_family.is_ok());
+        FontsDir::build();
     }
 
     #[cfg(test)]
@@ -588,6 +490,47 @@ mod tests {
                     );
                     env::remove_var(var.as_str()); // Clean up after each test
                 }
+            }
+        }
+
+        #[test]
+        fn test_get_value() {
+            use std::env;
+
+            // Test with an environment variable that doesn't exist
+            {
+                let var = EnvVarNames::ReportTitle;
+                env::remove_var(var.as_str());
+                assert_eq!(
+                    var.get_value(),
+                    None,
+                    "Should return None for non-existent env var"
+                );
+            }
+
+            // Test with an environment variable that exists
+            {
+                let var = EnvVarNames::PdfName;
+                let test_value = "Test PDF Name";
+                env::set_var(var.as_str(), test_value);
+                assert_eq!(
+                    var.get_value(),
+                    Some(test_value.to_string()),
+                    "Should return the value of the env var"
+                );
+                env::remove_var(var.as_str()); // Clean up
+            }
+
+            // Test with an empty string value
+            {
+                let var = EnvVarNames::ReportTitle;
+                env::set_var(var.as_str(), "");
+                assert_eq!(
+                    var.get_value(),
+                    Some("".to_string()),
+                    "Should return an empty string for empty env var"
+                );
+                env::remove_var(var.as_str()); // Clean up
             }
         }
     }

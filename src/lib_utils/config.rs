@@ -8,22 +8,16 @@ use std::path::PathBuf;
 
 pub struct Config {
     pub working_dir: PathBuf,
-    /// currently unused and is deprecated
-    #[deprecated(
-        since = "0.6.1",
-        note = "currently unused and is deprecated due to introduction of embedded fonts"
-    )]
-    pub fonts_dir: FontsDir, //FIXME still unused
-    /// currently unused but will be handled in the future
     pub show_novulns_msg: bool, //FIXME still unused
     pub file_types_to_process: HashMap<InputFileType, bool>, //FIXME still unused
     pub show_oss_licenses: bool,
+    pub report_title: Option<String>,
+    pub pdf_meta_name: Option<String>,
 }
 
 impl Config {
     pub fn build() -> Result<Self, Box<dyn Error>> {
         let working_dir = std::env::current_dir()?;
-        let fonts_dir = FontsDir::default();
         let show_novulns_msg = EnvVarNames::NoVulnsMsg.is_on_or_unset();
         let mut process_json = EnvVarNames::ProcessJson.is_on_or_unset();
         let process_xml = EnvVarNames::ProcessXml.is_on_or_unset();
@@ -35,7 +29,11 @@ impl Config {
         }
 
         // print init information
-        fonts_dir.print_fonts_info();
+        FontsDir::print_fonts_info();
+
+        // print default titles details
+
+        EnvVarNames::print_report_titles_info();
 
         // validate
         if !(process_json || process_xml) {
@@ -50,10 +48,11 @@ impl Config {
 
         let config = Config {
             working_dir,
-            fonts_dir,
             show_novulns_msg,
             file_types_to_process,
             show_oss_licenses,
+            report_title: EnvVarNames::ReportTitle.get_value(),
+            pdf_meta_name: EnvVarNames::PdfName.get_value(),
         };
 
         Ok(config)

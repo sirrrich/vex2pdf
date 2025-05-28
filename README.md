@@ -13,7 +13,6 @@ A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXcha
 * [CycloneDX (VEX) to PDF Converter](#cyclonedx-vex-to-pdf-converter)
   * [Overview](#overview)
   * [Fonts Handling](#fonts-handling)
-    * [Font Fallback Mechanism **deprecated**](#font-fallback-mechanism-deprecated)
     * [Font Licensing](#font-licensing)
   * [Features](#features)
   * [Installation](#installation)
@@ -24,18 +23,17 @@ A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXcha
   * [Usage](#usage)
   * [Example](#example)
   * [Configuration](#configuration)
-    * [Font Path Configuration **deprecated**](#font-path-configuration-deprecated)
-      * [Linux - **deprecated**](#linux---deprecated)
-      * [Windows (PowerShell) - **deprecated**](#windows-powershell---deprecated)
     * [Environment Variables](#environment-variables)
-      * [~~VEX2PDF_FONTS_PATH~~](#vex2pdf_fonts_path)
       * [VEX2PDF_NOVULNS_MSG](#vex2pdf_novulns_msg)
       * [VEX2PDF_SHOW_OSS_LICENSES](#vex2pdf_show_oss_licenses)
       * [VEX2PDF_VERSION_INFO](#vex2pdf_version_info)
+      * [VEX2PDF_REPORT_TITLE](#vex2pdf_report_title)
+      * [VEX2PDF_PDF_META_NAME](#vex2pdf_pdf_meta_name)
   * [Documentation](#documentation)
   * [CycloneDX VEX Format](#cyclonedx-vex-format)
     * [Version 1.6 Compatibility Mode](#version-16-compatibility-mode)
   * [Security Considerations](#security-considerations)
+* [Changelog](#changelog)
   * [License](#license)
   * [Acknowledgments](#acknowledgments)
 <!-- TOC -->
@@ -46,30 +44,15 @@ VEX2PDF is a Rust application that scans the current directory for CycloneDX VEX
 
 ## Fonts Handling
 
-This tool uses Liberation Sans fonts to render PDFs. The fonts are now embedded directly in the binary, so **no external font installation is required**.
-
-### Font Fallback Mechanism **deprecated**
-
-> **Note:** The fonts have been embedded in the software as of 0.6.1. Therefore, The `VEX2PDF_FONTS_PATH` environment variable is deprecated as of version 0.6.1 and will be removed in version 0.7.0. Using embedded fonts is now the recommended approach and will be done automatically in the future.
-> the deprecation also applies to project/user/system location fonts to simplify the process. If you still need this functionality you may open a ticket under [vex2pdf issues](https://github.com/jurassicLizard/vex2pdf/issues).
-> otherwise the simpler and more elegant solution of embedded fonts will be enforced which will make the application more portable accross platforms
-
-> **Note:** This section will be removed upon deprecation of external fonts
-
-The tool will use fonts in the following order of preference:
-1. Embedded fonts (built into the binary)
-2. Custom location (if set via `VEX2PDF_FONTS_PATH` environment variable) - **Deprecated**
-3. Project location: `./fonts/liberation-fonts/` - **Deprecated**
-4. User location: `~/.local/share/fonts/liberation-fonts/` - **Deprecated**
-5. System location: `/usr/share/fonts/liberation-fonts/` - **Deprecated**
-
+This tool uses Liberation Sans fonts to render PDFs. The fonts are embedded directly in the binary, so **no extra font configuration is required** and the binary works standalone and is fully portable.
 
 ### Font Licensing
 
 The embedded Liberation Sans fonts are licensed under the SIL Open Font License (OFL).
-Set the environment variable `VEX2PDF_SHOW_OSS_LICENSES=true` to display full license details at runtime.
+Set the environment variable `VEX2PDF_SHOW_OSS_LICENSES=true` to display full license details at runtime. 
+Check [VEX2PDF_SHOW_OSS_LICENSES](#VEX2PDF_SHOW_OSS_LICENSES) for more Information.
 
-The font license file is available at `fonts/liberation-fonts/LICENSE` in the source repository.
+The font license file is also available at [Liberation fonts License file](external/fonts/liberation-fonts/LICENSE) in the current repository.
 
 ## Features
 - Automatically scans directories for JSON and XML files with VEX data
@@ -85,7 +68,6 @@ The font license file is available at `fonts/liberation-fonts/LICENSE` in the so
 ## Installation
 ### Prerequisites
 - Rust and Cargo (latest stable version)
-- Liberation Sans fonts (must be obtained separately as described in the [Font Requirement](#-font-requirement) section)
 
 ### Via Cargo
 The easiest way to install VEX2PDF is directly from crates.io:
@@ -96,13 +78,12 @@ cargo install vex2pdf
 
 After installation, the `vex2pdf` binary will be available in your Cargo bin directory.
 
-> ~~⚠️ **Important**: You'll still need to set up the Liberation Sans fonts as described in the [Font Requirement](#-font-requirement) section. When installing via Cargo, fonts should be placed in one of the paths listed in the [Font Path Configuration](#font-path-configuration) section.~~
-> Notice: As of 0.6.1 no extra font configuration is needed. Fonts have been embedded in the software binary. Check [Fonts handling and license](#fonts-handling) for further information
-
+> Notice: As of v0.6.1 no extra font configuration is needed. Fonts have been embedded in the software binary. Check [Fonts handling and license](#fonts-handling) for further information
 
 
 ### From Source
 Clone the repository, then build the application with `cargo build --release`. The binary will be available at target/release/vex2pdf.
+
 ### Windows Users
 Windows users can either:
 1. Install via Cargo as described above
@@ -161,43 +142,7 @@ Successfully generated PDF: ./documents/example3.pdf
 ```
 ## Configuration
 
-No configuration files are required. However the application has some customization options available
-
-### Font Path Configuration **deprecated**
-
-> As of 0.6.1 Embedded fonts are used in the binary and no extra configuration is needed. This section will be removed at the latest in v0.7.0
-> check [Font handling and license](#fonts-handling) for more information
-
-The application uses these locations for fonts in order of precedence:
-
-1. Custom directory specified via `VEX2PDF_FONTS_PATH` environment variable (if set) - **deprecated**
-2. Project-local directory `./fonts/liberation-fonts` (if it exists) - **deprecated**
-3. User's local fonts directory `~/.local/share/fonts/liberation-fonts` (if it exists) - **deprecated**
-4. System-wide directory `/usr/share/fonts/liberation-fonts` - **deprecated**
-
-You can customize the font path by setting the `VEX2PDF_FONTS_PATH` environment variable:
-The specified directory should contain the Liberation Sans font files directly (not in a subdirectory).
-
-For example, if your fonts are in `/path/to/your/liberation-fonts/`, set:
-
-#### Linux - **deprecated**
-
-```bash
-export VEX2PDF_FONTS_PATH=/path/to/your/liberation-fonts
- ./vex2pdf
-```
-
-#### Windows (PowerShell) - **deprecated**
-
-```bash
-$env:VEX2PDF_FONTS_PATH="C:\path\to\your\liberation-fonts" .\vex2pdf.exe
-```
-
-The specified directory should contain these font files:
-- LiberationSans-Regular.ttf
-- LiberationSans-Bold.ttf
-- LiberationSans-Italic.ttf
-- LiberationSans-BoldItalic.ttf
+No configuration files are required. However the application has some customization options available via Environment variables.
 
 
 ### Environment Variables
@@ -206,14 +151,11 @@ The following environment variables can be used to customize behavior:
 
 | Variable                            | Purpose                                                    | Default                                                   |
 |-------------------------------------|------------------------------------------------------------|-----------------------------------------------------------|
-| VEX2PDF_FONTS_PATH - **deprecated** | Custom path to look for font files - **deprecated**        | Check [Font Path Configuration](#font-path-configuration) |
 | VEX2PDF_NOVULNS_MSG                 | Controls the "No Vulnerabilities reported" message display | true                                                      |
 | VEX2PDF_SHOW_OSS_LICENSES           | Shows all relevant licenses and exits                      | off                                                       |
-| VEX2PDF_VERSION_INFO                | Shows version information before executing normally        | off                                                       |             
-
-#### ~~VEX2PDF_FONTS_PATH~~
-
-this has been deprecated see [Fonts handling section](#fonts-handling)
+| VEX2PDF_VERSION_INFO                | Shows version information before executing normally        | off                                                       |
+| VEX2PDF_REPORT_TITLE                | Overrides the default report title                         | Not set (uses default title)                              |
+| VEX2PDF_PDF_META_NAME               | Overrides the PDF metadata title                           | Not set (uses default metadata title)                     |
 
 #### VEX2PDF_NOVULNS_MSG
 
@@ -221,21 +163,34 @@ This variable controls how the Vulnerabilities section appears when no vulnerabi
 - When set to "true" or not set (default): A "Vulnerabilities" section will be shown with a "No Vulnerabilities reported" message
 - When set to "false": The Vulnerabilities section will be completely omitted from the PDF
 
+Example : `VEX2PDF_NOVULNS_MSG=false vex2pdf`
+
 #### VEX2PDF_SHOW_OSS_LICENSES
 
-Shows all relevant OSS licenses and quits the application. Currently shows : 
+Shows all relevant OSS licenses:
+- When set to "true" or "on": Show license texts and exit
+  - MIT License for the current software
+  - SIL License for the liberation-fonts
+- When set to "false" or "off" or when it is unset: Run the software normally
 
-- MIT License for the current software
-- SIL License for the liberation-fonts
+Example : `VEX2PDF_SHOW_OSS_LICENSES=true vex2pdf`
 
 #### VEX2PDF_VERSION_INFO
 
 Shows version information prior to running software normally
-Example:
-```bash
-# To hide the Vulnerabilities section when no vulnerabilities exist this is mostly useful when a report for a bom is generated
-VEX2PDF_NOVULNS_MSG=false vex2pdf
-```
+
+#### VEX2PDF_REPORT_TITLE
+
+Overrides the default report title with custom text
+
+Example : `VEX2PDF_REPORT_TITLE="My Custom VEX Report" vex2pdf`
+
+#### VEX2PDF_PDF_META_NAME
+
+Overrides the PDF metadata title with custom text
+
+Example 1 : `VEX2PDF_PDF_META_NAME="VEX Report - Company XYZ" vex2pdf`
+Example 2 : `VEX2PDF_PDF_META_NAME="VEX Report - Company XYZ" VEX2PDF_REPORT_TITLE="My Custom VEX Report" vex2pdf`
 
 
 ## Documentation
@@ -243,8 +198,6 @@ VEX2PDF_NOVULNS_MSG=false vex2pdf
 
 For full API documentation, please visit:
 - [vex2pdf on docs.rs](https://docs.rs/vex2pdf)
-
-> **Note**: Rust documentation is a work in progress. Please refer to the code comments for details on specific functions and data structures.
 
 To generate documentation locally:
 ```bash
@@ -279,7 +232,10 @@ When processing 1.6 documents, you'll see console messages indicating the compat
 - The application reads and processes files from the current directory
 - No network connections are established
 - Input validation is performed on all JSON files
-- Font paths are validated before use
+
+# Changelog
+
+Changes to the software between version increments are documented under [Changelog.md](CHANGELOG.md).
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.

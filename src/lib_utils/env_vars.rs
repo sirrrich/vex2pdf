@@ -2,15 +2,6 @@
 pub enum EnvVarNames {
     /// Standard HOME environment variable
     Home,
-
-    /// Custom path to look for font files
-    /// When set, this is checked before standard system locations
-    #[deprecated(
-        since = "0.6.1",
-        note = "Fonts are now embedded in the binary. Use [`FontsDir::load_embedded_font_family()`](crate::pdf::font_config::FontsDir::load_embedded_font_family) instead."
-    )]
-    FontsPath,
-
     /// Controls whether to display "No Vulnerabilities reported" message
     /// When set to "false", the Vulnerabilities section will be omitted completely
     /// if no vulnerabilities exist.
@@ -25,18 +16,21 @@ pub enum EnvVarNames {
     ShowOssLicenses,
     /// Shows Software version and copyright Information if set to true
     VersionInfo,
+    ReportTitle,
+    PdfName,
 }
 
 impl EnvVarNames {
     pub fn as_str(&self) -> &'static str {
         match self {
             EnvVarNames::Home => "HOME",
-            EnvVarNames::FontsPath => "VEX2PDF_FONTS_PATH",
             EnvVarNames::NoVulnsMsg => "VEX2PDF_NOVULNS_MSG",
             EnvVarNames::ProcessJson => "VEX2PDF_JSON",
             EnvVarNames::ProcessXml => "VEX2PDF_XML",
             EnvVarNames::ShowOssLicenses => "VEX2PDF_SHOW_OSS_LICENSES",
             EnvVarNames::VersionInfo => "VEX2PDF_VERSION_INFO",
+            EnvVarNames::ReportTitle => "VEX2PDF_REPORT_TITLE",
+            EnvVarNames::PdfName => "VEX2PDF_PDF_META_NAME",
         }
     }
     /// this is useful for environment variables which should be on by default
@@ -54,12 +48,51 @@ impl EnvVarNames {
         }
     }
 
+    /// Prints information about currently used pdf titles
+    pub fn print_report_titles_info() {
+        println!();
+        match EnvVarNames::ReportTitle.get_value() {
+            Some(title) => {
+                println!("Overriding report title to {title}");
+            }
+            None => {
+                println!("Using default report title");
+                println!(
+                    "to override this set the {} environment variable to the desired title",
+                    EnvVarNames::ReportTitle.as_str()
+                );
+            }
+        };
+        println!();
+        match EnvVarNames::PdfName.get_value() {
+            Some(title) => {
+                println!("Overriding pdf metadata title to {title}");
+            }
+            None => {
+                println!("Using default pdf metadata title");
+                println!(
+                    "to override this set the {} environment variable to the desired title",
+                    EnvVarNames::PdfName.as_str()
+                );
+            }
+        };
+        println!();
+    }
+
     // Helper method to determine if a value represents "on"
     fn is_value_on(&self, value: &str) -> bool {
         !(value.eq_ignore_ascii_case("false")
             || value.eq_ignore_ascii_case("off")
             || value.eq_ignore_ascii_case("no")
             || value.eq_ignore_ascii_case("0"))
+    }
+
+    /// Helper method to get the value of the variable
+    pub fn get_value(&self) -> Option<String> {
+        match std::env::var(self.as_str()) {
+            Ok(value) => Some(value),
+            Err(_) => None,
+        }
     }
 }
 

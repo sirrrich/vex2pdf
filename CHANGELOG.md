@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [0.7.0]
+
+### Added
+- Added `VEX2PDF_REPORT_TITLE` environment variable to override the default report title
+- Added `VEX2PDF_PDF_META_NAME` environment variable to override the PDF metadata title
+- Added ability to customize report titles via environment variables
+
+### Removed
+- Removed old fonts handling completely which has been replaced with embedded fonts
+- Removed deprecated functions from documentation
+
 ## [0.6.2] - 2025-55-22
 
 ### Fixed
@@ -23,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 - the VEX2PDF_FONTS_PATH environment variable is now deprecated. Starting from 0.7.0 we will only rely on embedded fonts to make 
 the software more portable and simplify the code
+- Old fonts handling is now deprecated, and in the future only embedded fonts will be used
 
 ## [0.6.0] - 2025-05-20
 

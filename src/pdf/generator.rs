@@ -3,7 +3,7 @@
 //! This module handles the conversion from CycloneDX (VEX) data structures to
 //! formatted PDF documents using the genpdf library.
 //!
-//! The generator supports various VEX elements including vulnerabilities,
+//! The generator supports various VEX elements, including vulnerabilities,
 //! components, and document metadata.
 //!
 
@@ -17,16 +17,74 @@ use genpdf::{Alignment, Document, Element};
 use std::io;
 use std::path::Path;
 
-pub struct PdfGenerator {
-    // Define default styles as constants or struct fields
+pub struct PdfGenerator<'a> {
     title_style: Style,
     header_style: Style,
     normal_style: Style,
     indent_style: Style,
+    /// This is the title of the report; which is the first heading
+    /// in the first page if no value is given a default title is used.
+    report_title: Option<&'a str>,
+    /// Sets the PDF document's metadata title that appears in PDF reader applications.
+    /// This is distinct from the filename on disk (which typically matches the original file with a .pdf extension).
+    /// If not specified, a default title will be used.
+    pdf_meta_name: Option<&'a str>,
 }
 
-impl PdfGenerator {
-    pub fn new() -> Self {
+impl Default for PdfGenerator<'_> {
+    /// Creates a new PDF generator with default report and PDF titles.
+    ///
+    /// This implementation of the `Default` trait provides a convenient way to create a
+    /// `PdfGenerator` with standard titles suitable for vulnerability reports.
+    ///
+    /// # Returns
+    ///
+    /// A new `PdfGenerator` instance with:
+    /// - Report title: "Vulnerability Report Document"
+    /// - PDF title: "VEX Vulnerability Report"
+    /// - Default styling for all text elements
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use vex2pdf::pdf::generator::PdfGenerator;
+    /// use std::default::Default;
+    ///
+    /// // Create a generator with default settings
+    /// let generator = PdfGenerator::default();
+    ///
+    /// // Alternatively
+    /// let generator: PdfGenerator = Default::default();
+    /// ```
+    fn default() -> Self {
+        Self::new(
+            Some(Self::get_default_report_title()),
+            Some(Self::get_default_pdf_meta_name()),
+        )
+    }
+}
+
+impl<'a> PdfGenerator<'a> {
+    /// Creates a new PDF generator with custom report and PDF titles.
+    ///
+    /// # Arguments
+    ///
+    /// * `report_title` - The title displayed as the main heading on the first page of the report
+    /// * `pdf_title` - The title displayed in the PDF reader window/tab when the document is opened
+    ///
+    /// # Returns
+    ///
+    /// A new `PdfGenerator` instance with default styles and the specified titles
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use vex2pdf::pdf::generator::PdfGenerator;
+    ///
+    /// // Create a generator with custom titles
+    /// let generator = PdfGenerator::new(Some("Security Analysis Results"), Some("Product Security Report"));
+    /// ```
+    pub fn new(report_title: Option<&'a str>, pdf_meta_name: Option<&'a str>) -> Self {
         // Initialize with default styles
         let title_style = Style::new()
             .with_font_size(18)
@@ -47,7 +105,19 @@ impl PdfGenerator {
             header_style,
             normal_style,
             indent_style,
+            report_title,
+            pdf_meta_name,
         }
+    }
+
+    /// Gets the default title for the pdf metadata
+    fn get_default_pdf_meta_name() -> &'static str {
+        "VEX Vulnerability Report"
+    }
+
+    /// Gets the default title of the report which shows on the first page
+    fn get_default_report_title() -> &'static str {
+        "Vulnerability Report Document"
     }
 
     /// Generates a PDF report from a CycloneDX VEX document.
@@ -63,50 +133,24 @@ impl PdfGenerator {
     pub fn generate_pdf<P: AsRef<Path>>(&self, vex: &Bom, output_path: P) -> Result<(), io::Error> {
         // Set up the document with default fonts
 
-        let fonts_dir = FontsDir::default();
+        let document_title = self
+            .report_title
+            .unwrap_or(Self::get_default_report_title());
+        let pdf_title = self
+            .pdf_meta_name
+            .unwrap_or(Self::get_default_pdf_meta_name());
 
-        let custom_fonts_path =
-            genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None); //FIXME deprecated will be replaced by embedded fonts in the future
-
-        // Checking if a fonts directory override is there else we use embedded fonts with fallback
-
-        let font_family = custom_fonts_path.unwrap_or_else(|_| {
-            fonts_dir.load_embedded_font_family()
-                .unwrap_or_else(|_| {
-                    // Fall back to loading fonts from filesystem
-                    println!("**** WARNING! : Failed to load embedded fonts falling back to filesystem fonts");
-                    genpdf::fonts::from_files(fonts_dir.get_active_font_dir(), "LiberationSans", None)
-                        .expect(
-                            "Failed to load Liberation Sans fonts.\n\n\
-                    Searched in:\n\
-                    - Embedded Font files (failed to load)
-                    - Custom location (if set via VEX2PDF_FONTS_PATH environment variable)\n\
-                    - Project location: './fonts/liberation-fonts'\n\
-                    - User location: '~/.local/share/fonts/liberation-fonts'\n\
-                    - System location: '/usr/share/fonts/liberation-fonts'\n\n\
-                    Please download Liberation Sans fonts from:\n\
-                    https://github.com/liberationfonts/liberation-fonts/releases\n\n\
-                    Required files to place in one of the above locations:\n\
-                    - LiberationSans-Regular.ttf\n\
-                    - LiberationSans-Bold.ttf\n\
-                    - LiberationSans-Italic.ttf\n\
-                    - LiberationSans-BoldItalic.ttf\n
-                    Or set VEX2PDF_FONTS_PATH environment variable to point to your liberation-fonts directory.\n\n")
-                })
-        });
-
-        let document_title = "Vulnerability Report Document";
-        let pdf_title = "VEX Vulnerability Report";
-        let mut doc = Document::new(font_family);
+        let mut doc = Document::new(FontsDir::build().font_family);
 
         doc.set_title(pdf_title);
         let mut decorator = genpdf::SimplePageDecorator::new();
         decorator.set_margins(10);
-        decorator.set_header(|page| {
+        let header_title = document_title.to_string();
+        decorator.set_header(move |page| {
             let mut layout = genpdf::elements::LinearLayout::vertical();
             if page > 1 {
                 layout.push(
-                    Paragraph::new("Vulnerability report".to_string()).aligned(Alignment::Left),
+                    Paragraph::new(&header_title).aligned(Alignment::Left),
                 );
 
                 layout.push(Paragraph::new(format!("Page {}", page)).aligned(Alignment::Center));
@@ -327,7 +371,7 @@ impl PdfGenerator {
                 .with_color(Color::Rgb(0, 100, 0));
 
             doc.push(
-                genpdf::elements::Paragraph::new("No Vulnerabilities reported")
+                Paragraph::new("No Vulnerabilities reported")
                     .aligned(Alignment::Center)
                     .padded(genpdf::Margins::vh(10, 0))
                     .framed()
@@ -363,11 +407,5 @@ impl PdfGenerator {
             .expect("failed to write file");
 
         Ok(())
-    }
-}
-
-impl Default for PdfGenerator {
-    fn default() -> Self {
-        PdfGenerator::new()
     }
 }
