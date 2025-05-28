@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed old fonts handling completely which has been replaced with embedded fonts
 - Removed deprecated functions from documentation
 
+### Changed
+- Upgraded license from MIT to `MIT OR Apache 2.0` at the user's discretion
+
 ## [0.6.2] - 2025-55-22
 
 ### Fixed

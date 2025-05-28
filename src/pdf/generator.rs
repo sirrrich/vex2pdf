@@ -149,9 +149,7 @@ impl<'a> PdfGenerator<'a> {
         decorator.set_header(move |page| {
             let mut layout = genpdf::elements::LinearLayout::vertical();
             if page > 1 {
-                layout.push(
-                    Paragraph::new(&header_title).aligned(Alignment::Left),
-                );
+                layout.push(Paragraph::new(&header_title).aligned(Alignment::Left));
 
                 layout.push(Paragraph::new(format!("Page {}", page)).aligned(Alignment::Center));
                 layout.push(genpdf::elements::Break::new(2));

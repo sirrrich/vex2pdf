@@ -1,9 +1,9 @@
 [package]
 name = "vex2pdf"
-version = "0.6.2"
+version = "0.7.0"
 edition = "2021"
 authors = ["Salem B. <jurassic.lizard@protonmail.com>"]
-license = "MIT"
+license = "MIT OR Apache-2.0"
 description = "A tool to convert CycloneDX(VEX) JSON or XML documents to PDF reports"
 repository = "https://github.com/jurassicLizard/vex2pdf"
 documentation = "https://docs.rs/vex2pdf"

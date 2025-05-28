@@ -101,13 +101,19 @@ use std::error::Error;
 /// # Example
 ///
 /// ```
+/// use std::process;
 /// use vex2pdf::lib_utils::config::Config;
 /// use vex2pdf::run;
 ///
-/// let config = Config::build();
-/// match run(&config) {
-///     Ok(_) => println!("Processing completed successfully"),
-///     Err(e) => eprintln!("Error during processing: {}", e),
+/// let config = Config::build().unwrap_or_else(|err| {
+/// eprintln!("Problem setting up working environment:");
+/// eprintln!("{}", { err });
+/// process::exit(1);
+/// });
+///
+/// if let Err(e) = vex2pdf::run(&config) {
+/// eprintln!("Application error: {e}");
+/// process::exit(1);
 /// }
 /// ```
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
