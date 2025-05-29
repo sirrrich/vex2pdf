@@ -35,6 +35,8 @@ A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXcha
   * [Security Considerations](#security-considerations)
 * [Changelog](#changelog)
   * [License](#license)
+    * [Contribution](#contribution)
+    * [Third-Party Dependencies](#third-party-dependencies)
   * [Acknowledgments](#acknowledgments)
 <!-- TOC -->
 
@@ -238,9 +240,24 @@ When processing 1.6 documents, you'll see console messages indicating the compat
 Changes to the software between version increments are documented under [Changelog.md](CHANGELOG.md).
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-The Liberation Fonts used by this application are licensed under the SIL Open Font License and must be obtained separately.
 
+This project is licensed under either of:
+
+* [MIT License](LICENSE-MIT)
+* [Apache License, Version 2.0](LICENSE-APACHE)
+
+at your option.
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in this project by you shall be dual-licensed as above, without any
+additional terms or conditions.
+
+### Third-Party Dependencies
+
+This project uses third-party dependencies that may be distributed under different licenses.
+Please refer to the license information provided with each dependency for details.
 
 ## Acknowledgments
 - [CycloneDX](https://cyclonedx.org/) for the VEX specification
