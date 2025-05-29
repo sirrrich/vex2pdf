@@ -221,6 +221,6 @@ pub fn print_copyright() {
         "vex2pdf v{} - CycloneDX (VEX) to PDF Converter",
         env!("CARGO_PKG_VERSION")
     );
-    println!("Copyright (c) 2025 Salem B. - MIT License");
+    println!("Copyright (c) 2025 Salem B. - MIT Or Apache 2.0 License");
     println!();
 }

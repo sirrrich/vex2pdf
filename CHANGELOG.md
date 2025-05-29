@@ -13,9 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated Readme.md with dual-licensing details
+
 ### Fixed
 - Fix formatting of Apache 2.0 license text
 - Fix minor typo and missing date in Changelog.md
+- Fixed `VEX2PDF_SHOW_OSS_LICENSES` env variable handlers to show updated license information
 
 # [0.7.0] - 2025-05-28
 

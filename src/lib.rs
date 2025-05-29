@@ -120,10 +120,10 @@ pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     if config.show_oss_licenses {
         // show OSS licenses and return
         print_copyright();
-        let main_license_text = include_bytes!("../LICENSE.md");
-        let trimmed_license =
-            String::from_utf8_lossy(main_license_text).replacen("# MIT License", "", 1);
-        println!("{}", trimmed_license);
+        let main_license_text = r#"VEX2PDF is licensed under either MIT or Apache License, Version 2.0 at your option.
+license text can be found under: https://github.com/jurassicLizard/vex2pdf/blob/master/README.md#license"#;
+
+        println!("{}", main_license_text);
         println!();
         println!("-----------------------------------------------------------------------------\n");
         println!("This software makes use of Liberation Fonts licensed under SIL as follows : ");
