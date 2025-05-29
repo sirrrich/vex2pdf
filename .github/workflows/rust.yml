@@ -121,9 +121,9 @@ jobs:
             - Make it executable (Linux: `chmod +x vex2pdf-linux-x86_64`)
             - Run the tool in a directory with CycloneDX VEX JSON files
             
-            ## Font Requirement
+            ## Font Handling
             
-            Remember that this tool requires Liberation Sans fonts to render PDFs correctly.
-            See the [README](https://github.com/${{ github.repository }}/blob/master/README.md#-font-requirement) for details.
+            Liberation sans fonts are embedded in the binaries and no further configuration is necessary
+            See the [Readme's Fonts handling section](https://github.com/${{ github.repository }}/blob/master/README.md#fonts-handling) for details.
             
             For full documentation, see the [README](https://github.com/${{ github.repository }}/blob/master/README.md).
