@@ -33,7 +33,7 @@ A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXcha
   * [CycloneDX VEX Format](#cyclonedx-vex-format)
     * [Version 1.6 Compatibility Mode](#version-16-compatibility-mode)
   * [Security Considerations](#security-considerations)
-* [Changelog](#changelog)
+  * [Changelog](#changelog)
   * [License](#license)
     * [Contribution](#contribution)
     * [Third-Party Dependencies](#third-party-dependencies)
@@ -235,7 +235,7 @@ When processing 1.6 documents, you'll see console messages indicating the compat
 - No network connections are established
 - Input validation is performed on all JSON files
 
-# Changelog
+## Changelog
 
 Changes to the software between version increments are documented under [Changelog.md](CHANGELOG.md).
 
