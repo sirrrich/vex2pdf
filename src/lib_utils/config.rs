@@ -28,12 +28,11 @@ impl Config {
             print_copyright();
         }
 
-        if ! show_oss_licenses {
+        if !show_oss_licenses {
             // print init information only if show oss licenses is off
             FontsDir::print_fonts_info();
             // print default titles details only if show oss licenses is off
             EnvVarNames::print_report_titles_info();
-
         }
 
         // validate

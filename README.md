@@ -62,7 +62,7 @@ The font license file is also available at [Liberation fonts License file](exter
 - Supports both JSON and XML CycloneDX formats
 - Preserves all key VEX information including:
   - Document metadata and timestamps
-  - Vulnerability details with severity ratings
+  - Vulnerability details with severity ratings and sources
   - Component information
   - Tools used to generate the VEX document
 - Cross-platform support (Linux, Windows)

@@ -343,11 +343,33 @@ impl<'a> PdfGenerator<'a> {
                         } else {
                             "N/A".to_string()
                         };
+
+                        let source_str: Option<String> =
+                            rating.vulnerability_source.as_ref().and_then(|source| {
+                                source
+                                    .name
+                                    .as_ref()
+                                    .map(|source_name| source_name.to_string())
+                            });
+
                         if let Some(severity) = &rating.severity {
-                            ratings_list.push(Paragraph::default().styled_string(
-                                format!("Severity: {} ({})", severity, rating_method),
-                                self.indent_style,
-                            ));
+                            // add Severity ratings and sources
+
+                            let mut severity_par = Paragraph::default()
+                                .styled_string("Severity: ", self.indent_style.bold())
+                                .styled_string(
+                                    format!("{} ({}", severity, rating_method),
+                                    self.indent_style,
+                                );
+
+                            if let Some(source_name) = source_str {
+                                severity_par = severity_par
+                                    .styled_string(" — Source: ", self.indent_style)
+                                    .styled_string(source_name, self.indent_style);
+                            }
+
+                            severity_par = severity_par.styled_string(")", self.indent_style);
+                            ratings_list.push(severity_par);
                         }
                     }
                 }
