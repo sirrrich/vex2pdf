@@ -19,10 +19,11 @@
 //! The tool will scan for JSON or XML files (or both depending on the configuration), process any valid VEX documents,
 //! and generate corresponding PDF reports with the same filename but with a .pdf extension.
 //!
-//! ## Font Requirements
+//! ## Font Handling
 //!
-//! This tool requires Liberation Sans fonts to render PDFs correctly.
-//! See the README for details on setting up fonts.
+//! This tool has Liberation Sans fonts embedded in the binary to render PDFs correctly.
+//! No extra configuration is required
+//! See the README for more details.
 
 use std::error::Error;
 use std::process;
@@ -39,5 +40,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         eprintln!("Application error: {e}");
         process::exit(1);
     }
+
     Ok(())
 }

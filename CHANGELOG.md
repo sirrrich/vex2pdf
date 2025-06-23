@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Added `VEX2PDF_SHOW_COMPONENTS` environment variable to control whether the components section is shown
+
 ## Fixed
 - Fixed Readme.md Section chapter hierarchy for the Changelog chapter
+## Changed
+- Updated Readme.md with `VEX2PDF_SHOW_COMPONENTS` environment variable information
+
 
 ## [0.7.1] - 2025-06-11
 

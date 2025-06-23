@@ -7,7 +7,6 @@
 //! components, and document metadata.
 //!
 
-use crate::lib_utils::env_vars::EnvVarNames;
 use crate::pdf::font_config::FontsDir;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
@@ -29,6 +28,10 @@ pub struct PdfGenerator<'a> {
     /// This is distinct from the filename on disk (which typically matches the original file with a .pdf extension).
     /// If not specified, a default title will be used.
     pdf_meta_name: Option<&'a str>,
+    /// Controls whether a `No Vulnerabilities` message is shown if there are no vulnerabilities
+    show_novulns_msg: bool,
+    /// Controls whether the components section is shown
+    show_components: bool,
 }
 
 impl Default for PdfGenerator<'_> {
@@ -60,6 +63,8 @@ impl Default for PdfGenerator<'_> {
         Self::new(
             Some(Self::get_default_report_title()),
             Some(Self::get_default_pdf_meta_name()),
+            true,
+            true,
         )
     }
 }
@@ -71,6 +76,8 @@ impl<'a> PdfGenerator<'a> {
     ///
     /// * `report_title` - The title displayed as the main heading on the first page of the report
     /// * `pdf_title` - The title displayed in the PDF reader window/tab when the document is opened
+    /// * `show_novulns_msg` - Whether the `No Vulnerabilities reported` message is shown when no vulnerabilities are available
+    /// * `show_components` - Whether the `components section` is shown
     ///
     /// # Returns
     ///
@@ -81,10 +88,16 @@ impl<'a> PdfGenerator<'a> {
     /// ```rust
     /// use vex2pdf::pdf::generator::PdfGenerator;
     ///
-    /// // Create a generator with custom titles
-    /// let generator = PdfGenerator::new(Some("Security Analysis Results"), Some("Product Security Report"));
+    /// // Create a generator with custom titles showing a No Vulnerabilities message if
+    /// // the vulnerabilities array is empty and hiding the components section
+    /// let generator = PdfGenerator::new(Some("Security Analysis Results"), Some("Product Security Report"),true,false);
     /// ```
-    pub fn new(report_title: Option<&'a str>, pdf_meta_name: Option<&'a str>) -> Self {
+    pub fn new(
+        report_title: Option<&'a str>,
+        pdf_meta_name: Option<&'a str>,
+        show_novulns_msg: bool,
+        show_components: bool,
+    ) -> Self {
         // Initialize with default styles
         let title_style = Style::new()
             .with_font_size(18)
@@ -107,6 +120,8 @@ impl<'a> PdfGenerator<'a> {
             indent_style,
             report_title,
             pdf_meta_name,
+            show_novulns_msg,
+            show_components,
         }
     }
 
@@ -274,22 +289,6 @@ impl<'a> PdfGenerator<'a> {
 
         doc.push(genpdf::elements::Break::new(2.0));
 
-        // Default to showing the message (true by default)
-        let mut show_novulns_msg = true;
-
-        // Only check environment variable to see if we should disable the default behavior
-        if let Ok(vuln_msg_env) = std::env::var(EnvVarNames::NoVulnsMsg.as_str()) {
-            // Check for negative values that would disable the message
-            if vuln_msg_env.eq_ignore_ascii_case("false")
-                || vuln_msg_env.eq_ignore_ascii_case("off")
-                || vuln_msg_env.eq_ignore_ascii_case("no")
-                || vuln_msg_env.eq_ignore_ascii_case("0")
-            {
-                show_novulns_msg = false;
-            }
-            // For any other value, keep the default (true)
-        }
-
         // First determine if vulnerabilities exist
         let mut vulns_available = false;
         if let Some(vulnerabilities) = &vex.vulnerabilities {
@@ -297,7 +296,7 @@ impl<'a> PdfGenerator<'a> {
         }
 
         // Decide if we should show the vulnerabilities section at all
-        let show_vulns_section = vulns_available || show_novulns_msg;
+        let show_vulns_section = vulns_available || self.show_novulns_msg;
 
         if show_vulns_section {
             doc.push(Paragraph::default().styled_string("Vulnerabilities", self.header_style));
@@ -384,7 +383,7 @@ impl<'a> PdfGenerator<'a> {
         }
 
         //Add message if vulns are not available
-        if !vulns_available && show_novulns_msg {
+        if !vulns_available && self.show_novulns_msg {
             let vulns_style = Style::new()
                 .bold()
                 .with_font_size(16)
@@ -401,24 +400,26 @@ impl<'a> PdfGenerator<'a> {
         }
 
         // Add Components section if available
-        if let Some(components) = &vex.components {
-            doc.push(Paragraph::default().styled_string("Components", self.header_style));
-            doc.push(genpdf::elements::Break::new(0.5));
+        if self.show_components {
+            if let Some(components) = &vex.components {
+                doc.push(Paragraph::default().styled_string("Components", self.header_style));
+                doc.push(genpdf::elements::Break::new(0.5));
 
-            for component in &components.0 {
-                doc.push(
-                    Paragraph::default()
-                        .styled_string(format!("Name: {}", component.name), self.normal_style),
-                );
-
-                if let Some(version) = &component.version {
+                for component in &components.0 {
                     doc.push(
                         Paragraph::default()
-                            .styled_string(format!("Version: {}", version), self.indent_style),
+                            .styled_string(format!("Name: {}", component.name), self.normal_style),
                     );
-                }
 
-                doc.push(genpdf::elements::Break::new(0.5));
+                    if let Some(version) = &component.version {
+                        doc.push(
+                            Paragraph::default()
+                                .styled_string(format!("Version: {}", version), self.indent_style),
+                        );
+                    }
+
+                    doc.push(genpdf::elements::Break::new(0.5));
+                }
             }
         }
 

@@ -29,6 +29,7 @@ A command-line tool to convert CycloneDX VEX (Vulnerability Exploitability eXcha
       * [VEX2PDF_VERSION_INFO](#vex2pdf_version_info)
       * [VEX2PDF_REPORT_TITLE](#vex2pdf_report_title)
       * [VEX2PDF_PDF_META_NAME](#vex2pdf_pdf_meta_name)
+      * [VEX2PDF_SHOW_COMPONENTS](#vex2pdf_show_components)
   * [Documentation](#documentation)
   * [CycloneDX VEX Format](#cyclonedx-vex-format)
     * [Version 1.6 Compatibility Mode](#version-16-compatibility-mode)
@@ -149,15 +150,22 @@ No configuration files are required. However the application has some customizat
 
 ### Environment Variables
 
+
+> **Windows Users**: To set environment variables on Windows, use:
+> - **Command Prompt**: `set VEX2PDF_ENV_VARIABLE=false && vex2pdf`
+> - **PowerShell**: `$env:VEX2PDF_ENV_VARIABLE="false"; vex2pdf`
+
 The following environment variables can be used to customize behavior:
 
-| Variable                            | Purpose                                                    | Default                                                   |
-|-------------------------------------|------------------------------------------------------------|-----------------------------------------------------------|
-| VEX2PDF_NOVULNS_MSG                 | Controls the "No Vulnerabilities reported" message display | true                                                      |
-| VEX2PDF_SHOW_OSS_LICENSES           | Shows all relevant licenses and exits                      | off                                                       |
-| VEX2PDF_VERSION_INFO                | Shows version information before executing normally        | off                                                       |
-| VEX2PDF_REPORT_TITLE                | Overrides the default report title                         | Not set (uses default title)                              |
-| VEX2PDF_PDF_META_NAME               | Overrides the PDF metadata title                           | Not set (uses default metadata title)                     |
+
+| Variable                  | Purpose                                                    | Default                               |
+|---------------------------|------------------------------------------------------------|---------------------------------------|
+| VEX2PDF_NOVULNS_MSG       | Controls the "No Vulnerabilities reported" message display | true                                  |
+| VEX2PDF_SHOW_OSS_LICENSES | Shows all relevant licenses and exits                      | off                                   |
+| VEX2PDF_VERSION_INFO      | Shows version information before executing normally        | off                                   |
+| VEX2PDF_REPORT_TITLE      | Overrides the default report title                         | Not set (uses default title)          |
+| VEX2PDF_PDF_META_NAME     | Overrides the PDF metadata title                           | Not set (uses default metadata title) |
+| VEX2PDF_SHOW_COMPONENTS   | Whether to show the components section                     | true                                  |
 
 #### VEX2PDF_NOVULNS_MSG
 
@@ -194,6 +202,11 @@ Overrides the PDF metadata title with custom text
 Example 1 : `VEX2PDF_PDF_META_NAME="VEX Report - Company XYZ" vex2pdf`
 Example 2 : `VEX2PDF_PDF_META_NAME="VEX Report - Company XYZ" VEX2PDF_REPORT_TITLE="My Custom VEX Report" vex2pdf`
 
+#### VEX2PDF_SHOW_COMPONENTS
+
+Whether to show the components section after the vulnerabilities
+
+Example : `VEX2PDF_SHOW_COMPONENTS=false vex2pdf`
 
 ## Documentation
 

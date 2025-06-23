@@ -36,7 +36,9 @@
 //!   - `generator`: PDF document generation
 //! - `lib_utils`: Utilities and data models used in this library and accompanying runnable
 //!
-
+//! For installation instructions, usage examples, and project overview,
+//! see the [project README](https://github.com/jurassicLizard/vex2pdf/blob/master/README.md).
+//!
 // Re-export cyclonedx-bom models for use by consumers of this library
 pub use cyclonedx_bom as model;
 
@@ -140,7 +142,12 @@ license text can be found under: https://github.com/jurassicLizard/vex2pdf/blob/
     let report_title = config.report_title.as_deref();
     let pdf_name = config.pdf_meta_name.as_deref();
 
-    let pdf_generator = PdfGenerator::new(report_title, pdf_name);
+    let pdf_generator = PdfGenerator::new(
+        report_title,
+        pdf_name,
+        config.show_novulns_msg,
+        config.show_components,
+    );
 
     // Find json files
     let json_files = find_files(config, InputFileType::JSON)?;

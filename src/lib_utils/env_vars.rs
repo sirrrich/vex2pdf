@@ -16,8 +16,12 @@ pub enum EnvVarNames {
     ShowOssLicenses,
     /// Shows Software version and copyright Information if set to true
     VersionInfo,
+    /// Controls the title shown in the PDF when it is generated
     ReportTitle,
+    /// Controls the metadata name which is usually displayed in window headers of readers
     PdfName,
+    /// Whether the components section is displayed in the generated result or only vulnerabilities
+    ShowComponents,
 }
 
 impl EnvVarNames {
@@ -31,6 +35,7 @@ impl EnvVarNames {
             EnvVarNames::VersionInfo => "VEX2PDF_VERSION_INFO",
             EnvVarNames::ReportTitle => "VEX2PDF_REPORT_TITLE",
             EnvVarNames::PdfName => "VEX2PDF_PDF_META_NAME",
+            EnvVarNames::ShowComponents => "VEX2PDF_SHOW_COMPONENTS",
         }
     }
     /// this is useful for environment variables which should be on by default
