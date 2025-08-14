@@ -10,22 +10,22 @@
 use crate::pdf::font_config::FontsDir;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
-use cyclonedx_bom::models::vulnerability::AnalysisState;
+use cyclonedx_bom::models::vulnerability_analysis::{
+    VulnerabilityAnalysis,
+    ImpactAnalysisState,
+    ImpactAnalysisJustification,
+    ImpactAnalysisResponse,
+};
 use genpdf::elements::Paragraph;
 use genpdf::style::{Color, Style};
 use genpdf::{Alignment, Document, Element};
 use std::io;
 use std::path::Path;
 
-fn fmt_analysis_state(state: &AnalysisState) -> &'static str {
-    match state {
-        AnalysisState::NotAffected   => "not_affected",
-        AnalysisState::Exploitable   => "exploitable",
-        AnalysisState::InTriage      => "in_triage",
-        AnalysisState::Resolved      => "resolved",
-        AnalysisState::FalsePositive => "false_positive",
-        _ => "unknown",
-    }
+fn fmt_analysis_state(state: &ImpactAnalysisState) -> String {
+    // Das Enum implementiert Display – ergibt z.B. "NotAffected".
+    // Falls du exakt "not_affected" willst, kleinschreiben + Unterstriche:
+    state.to_string().to_lowercase()
 }
 
 pub struct PdfGenerator<'a> {
@@ -347,14 +347,13 @@ impl<'a> PdfGenerator<'a> {
 
                 // --- Analysis (CycloneDX 'analysis' / Rust: vulnerability_analysis) ---
                 if let Some(analysis) = &vuln.vulnerability_analysis {
-                    // Überschrift „Analysis:“ (optisch etwas eingerückt/fett)
+                    // Überschrift
                     vuln_layout.push(
-                        Paragraph::default()
-                            .styled_string("Analysis:", self.indent_style.bold())
+                        Paragraph::default().styled_string("Analysis:", self.indent_style.bold())
                     );
                 
                     // state
-                    if let Some(state) = &analysis.state {
+                    if let Some(state) = analysis.state.as_ref() {
                         vuln_layout.push(
                             Paragraph::default()
                                 .styled_string("  state: ", self.indent_style.bold())
@@ -373,26 +372,10 @@ impl<'a> PdfGenerator<'a> {
                         }
                     }
                 
-                    // (Optional) justification / response, falls gewünscht:
-                    // if let Some(j) = analysis.justification.as_ref() {
-                    //     vuln_layout.push(
-                    //         Paragraph::default()
-                    //             .styled_string("  justification: ", self.indent_style.bold())
-                    //             .styled_string(j.to_string(), self.indent_style)
-                    //     );
-                    // }
-                    // if let Some(rsp) = analysis.response.as_ref() {
-                    //     let joined = rsp.iter().map(ToString::to_string).collect::<Vec<_>>().join(", ");
-                    //     if !joined.is_empty() {
-                    //         vuln_layout.push(
-                    //             Paragraph::default()
-                    //                 .styled_string("  response: ", self.indent_style.bold())
-                    //                 .styled_string(joined, self.indent_style)
-                    //         );
-                    //     }
-                    // }
+                    // optional: justification/responses ausgeben
+                    // if let Some(j) = analysis.justification.as_ref() { ... }
+                    // if let Some(rs) = analysis.responses.as_ref() { ... }
                 
-                    // kleiner Abstand zur nächsten Sektion
                     vuln_layout.push(genpdf::elements::Break::new(0.5));
                 }
                 
