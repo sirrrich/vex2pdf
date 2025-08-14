@@ -10,11 +10,23 @@
 use crate::pdf::font_config::FontsDir;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
+use cyclonedx_bom::models::vulnerability::AnalysisState;
 use genpdf::elements::Paragraph;
 use genpdf::style::{Color, Style};
 use genpdf::{Alignment, Document, Element};
 use std::io;
 use std::path::Path;
+
+fn fmt_analysis_state(state: &AnalysisState) -> &'static str {
+    match state {
+        AnalysisState::NotAffected   => "not_affected",
+        AnalysisState::Exploitable   => "exploitable",
+        AnalysisState::InTriage      => "in_triage",
+        AnalysisState::Resolved      => "resolved",
+        AnalysisState::FalsePositive => "false_positive",
+        _ => "unknown",
+    }
+}
 
 pub struct PdfGenerator<'a> {
     title_style: Style,
@@ -333,6 +345,57 @@ impl<'a> PdfGenerator<'a> {
                 vuln_layout.push(desc_paragraph);
                 vuln_layout.push(genpdf::elements::Break::new(0.5));
 
+                // --- Analysis (CycloneDX 'analysis' / Rust: vulnerability_analysis) ---
+                if let Some(analysis) = &vuln.vulnerability_analysis {
+                    // Überschrift „Analysis:“ (optisch etwas eingerückt/fett)
+                    vuln_layout.push(
+                        Paragraph::default()
+                            .styled_string("Analysis:", self.indent_style.bold())
+                    );
+                
+                    // state
+                    if let Some(state) = &analysis.state {
+                        vuln_layout.push(
+                            Paragraph::default()
+                                .styled_string("  state: ", self.indent_style.bold())
+                                .styled_string(fmt_analysis_state(state), self.indent_style)
+                        );
+                    }
+                
+                    // detail
+                    if let Some(detail) = analysis.detail.as_deref() {
+                        if !detail.is_empty() {
+                            vuln_layout.push(
+                                Paragraph::default()
+                                    .styled_string("  detail: ", self.indent_style.bold())
+                                    .styled_string(detail, self.indent_style)
+                            );
+                        }
+                    }
+                
+                    // (Optional) justification / response, falls gewünscht:
+                    // if let Some(j) = analysis.justification.as_ref() {
+                    //     vuln_layout.push(
+                    //         Paragraph::default()
+                    //             .styled_string("  justification: ", self.indent_style.bold())
+                    //             .styled_string(j.to_string(), self.indent_style)
+                    //     );
+                    // }
+                    // if let Some(rsp) = analysis.response.as_ref() {
+                    //     let joined = rsp.iter().map(ToString::to_string).collect::<Vec<_>>().join(", ");
+                    //     if !joined.is_empty() {
+                    //         vuln_layout.push(
+                    //             Paragraph::default()
+                    //                 .styled_string("  response: ", self.indent_style.bold())
+                    //                 .styled_string(joined, self.indent_style)
+                    //         );
+                    //     }
+                    // }
+                
+                    // kleiner Abstand zur nächsten Sektion
+                    vuln_layout.push(genpdf::elements::Break::new(0.5));
+                }
+                
                 let mut ratings_list = genpdf::elements::UnorderedList::new();
 
                 if let Some(ratings) = &vuln.vulnerability_ratings {
