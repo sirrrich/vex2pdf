@@ -372,8 +372,15 @@ impl<'a> PdfGenerator<'a> {
                         }
                     }
                 
-                    // optional: justification/responses ausgeben
-                    // if let Some(j) = analysis.justification.as_ref() { ... }
+                    if let Some(just) = analysis.justification.as_ref() {
+                        let txt = just.to_string();
+                        vuln_layout.push(
+                            Paragraph::default()
+                                .styled_string("  justification: ", self.indent_style.bold())
+                                .styled_string(txt, self.indent_style)
+                        );
+                    }
+                    // optional: responses ausgeben
                     // if let Some(rs) = analysis.responses.as_ref() { ... }
                 
                     vuln_layout.push(genpdf::elements::Break::new(0.5));
