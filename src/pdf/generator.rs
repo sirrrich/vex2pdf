@@ -276,6 +276,11 @@ impl<'a> PdfGenerator<'a> {
                         .styled_string("Component name : ", self.normal_style)
                         .styled_string(component.name.to_string(), self.indent_style),
                 );
+                doc.push(
+                    Paragraph::default()
+                        .styled_string("Version : ", self.normal_style)
+                        .styled_string(component.version.to_string(), self.indent_style),
+                );
             }
 
             doc.push(genpdf::elements::Break::new(1.0));
