@@ -10,12 +10,7 @@
 use crate::pdf::font_config::FontsDir;
 use cyclonedx_bom::models::tool::Tools;
 use cyclonedx_bom::prelude::Bom;
-use cyclonedx_bom::models::vulnerability_analysis::{
-    VulnerabilityAnalysis,
-    ImpactAnalysisState,
-    ImpactAnalysisJustification,
-    ImpactAnalysisResponse,
-};
+use cyclonedx_bom::models::vulnerability_analysis::ImpactAnalysisState;
 use genpdf::elements::Paragraph;
 use genpdf::style::{Color, Style};
 use genpdf::{Alignment, Document, Element};
@@ -276,11 +271,13 @@ impl<'a> PdfGenerator<'a> {
                         .styled_string("Component name : ", self.normal_style)
                         .styled_string(component.name.to_string(), self.indent_style),
                 );
-                doc.push(
-                    Paragraph::default()
-                        .styled_string("Version : ", self.normal_style)
-                        .styled_string(component.version.to_string(), self.indent_style),
-                );
+                if let Some(version) = component.version.as_ref() {
+                    doc.push(
+                        Paragraph::default()
+                            .styled_string("Version: ", self.normal_style)
+                            .styled_string(format!("{}", version), self.indent_style),
+                    );
+                }
             }
 
             doc.push(genpdf::elements::Break::new(1.0));
